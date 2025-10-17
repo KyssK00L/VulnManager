@@ -12,7 +12,13 @@ from app.config import settings
 from app.database import Base
 
 # Import all models to ensure they're registered
-from app.models import ApiToken, User, Vulnerability, VulnerabilityHistory  # noqa: F401
+from app.models import (
+    ApiToken,
+    Session,
+    User,
+    Vulnerability,
+    VulnerabilityHistory,
+)  # noqa: F401
 
 # this is the Alembic Config object
 config = context.config

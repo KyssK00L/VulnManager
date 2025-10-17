@@ -1,6 +1,7 @@
 """XML parser and exporter for vulnerability data."""
 
 from typing import Any
+from uuid import UUID
 
 from lxml import etree
 
@@ -54,6 +55,11 @@ def parse_vulnerabilities_xml(xml_content: bytes) -> list[dict[str, Any]]:
 
             if tag == "Name":
                 vuln_data["name"] = text.strip()
+            elif tag.lower() in {"id", "uuid"}:
+                try:
+                    vuln_data["id"] = UUID(text.strip()) if text.strip() else None
+                except ValueError as exc:
+                    raise ValueError(f"Invalid UUID value '{text}'") from exc
             elif tag == "Level":
                 # Map to enum
                 level_map = {
@@ -119,6 +125,7 @@ def export_vulnerabilities_xml(vulnerabilities: list) -> bytes:
 
         # Define default order if not preserved
         default_order = [
+            "Id",
             "Name",
             "Level",
             "Scope",
@@ -136,6 +143,7 @@ def export_vulnerabilities_xml(vulnerabilities: list) -> bytes:
 
         # Map field names to XML tags
         field_map = {
+            "Id": str(vuln.id),
             "Name": vuln.name,
             "Level": vuln.level.value,
             "Scope": vuln.scope,
