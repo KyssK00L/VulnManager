@@ -2,7 +2,7 @@
 
 import hashlib
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from passlib.context import CryptContext
 
@@ -49,4 +49,4 @@ def generate_session_id() -> str:
 
 def get_default_token_expiration() -> datetime:
     """Get default expiration datetime for new tokens."""
-    return datetime.utcnow() + timedelta(days=settings.token_default_lifetime_days)
+    return datetime.now(timezone.utc) + timedelta(days=settings.token_default_lifetime_days)

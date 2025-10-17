@@ -1,6 +1,6 @@
 """Authentication routes."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
@@ -44,7 +44,7 @@ async def login(
         )
 
     # Create session (simplified - in production use proper session management)
-    session_id = f"{user.id}:{datetime.utcnow().timestamp()}:{generate_session_id()}"
+    session_id = f"{user.id}:{datetime.now(timezone.utc).timestamp()}:{generate_session_id()}"
 
     # Set session cookie
     max_age = settings.session_lifetime_hours * 3600

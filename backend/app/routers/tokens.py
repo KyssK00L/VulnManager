@@ -1,6 +1,6 @@
 """API Token management routes (admin-only)."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -120,7 +120,7 @@ async def revoke_token(
         )
 
     # Mark as revoked
-    token.revoked_at = datetime.utcnow()
+    token.revoked_at = datetime.now(timezone.utc)
     await db.commit()
 
     return None
