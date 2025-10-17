@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vulnmanager-db
+    environment:
+      POSTGRES_USER: vulnmanager
+      POSTGRES_PASSWORD: vulnmanager_dev_pass
+      POSTGRES_DB: vulnmanager
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vulnmanager"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vulnmanager-api
+    environment:
+      DATABASE_URL: postgresql://vulnmanager:vulnmanager_dev_pass@db:5432/vulnmanager
+      SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_production}
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - api_cache:/app/.pytest_cache
+      - api_mypy:/app/.mypy_cache
+      - api_ruff:/app/.ruff_cache
+      - api_pycache:/app/app/__pycache__
+      - api_alembic_cache:/app/alembic/__pycache__
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vulnmanager-web
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    command: npm run dev -- --host
+
+volumes:
+  postgres_data:
+  api_cache:
+  api_mypy:
+  api_ruff:
+  api_pycache:
+  api_alembic_cache:
