@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Env files (will be passed via docker-compose)
+.env
+.env.*
+
+# Tests
+tests/
+*.test.py
+
+# Documentation
+README.md
+docs/
+
+# Alembic cache
+alembic/__pycache__/
+alembic/versions/__pycache__/
