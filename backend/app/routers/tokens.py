@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import rate_limited, require_admin
+from app.dependencies import rate_limited, require_admin, verify_api_token
 from app.models.api_token import ApiToken
 from app.models.user import User
 from app.schemas.token import (
@@ -199,7 +199,7 @@ async def rotate_token(
 
 @router.head("/validate", status_code=status.HTTP_204_NO_CONTENT)
 async def validate_token(
-    db: AsyncSession = Depends(get_db),
+    _: tuple[ApiToken, str | None] = Depends(verify_api_token),
 ):
     """
     Validate that the provided token is valid.
