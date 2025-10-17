@@ -4,7 +4,18 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
+from lxml import etree
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,13 +33,15 @@ from app.schemas.vulnerability import (
     VulnerabilityExportDoc,
     VulnerabilityInfo,
     VulnerabilityUpdate,
+    VulnerabilitySearchResponse,
 )
 from app.utils.xml_parser import parse_vulnerabilities_xml, export_vulnerabilities_xml
+from app.utils.audit import audit_log
 
 router = APIRouter(prefix="/api/vulns", tags=["vulnerabilities"])
 
 
-@router.get("", response_model=list[VulnerabilityInfo])
+@router.get("", response_model=VulnerabilitySearchResponse)
 async def search_vulnerabilities(
     q: str | None = Query(None, description="Search query (name, description, risk)"),
     level: VulnerabilityLevel | None = Query(None, description="Filter by severity level"),
@@ -96,13 +109,16 @@ async def search_vulnerabilities(
     offset = (page - 1) * per_page
     query = query.offset(offset).limit(per_page)
 
-    # Execute
     result = await db.execute(query)
     vulnerabilities = result.scalars().all()
 
-    # Note: In a real app, you'd return pagination metadata
-    # For now, just return the results
-    return [VulnerabilityInfo.model_validate(v) for v in vulnerabilities]
+    items = [VulnerabilityInfo.model_validate(v) for v in vulnerabilities]
+    return VulnerabilitySearchResponse(
+        items=items,
+        total=int(total_count or 0),
+        page=page,
+        per_page=per_page,
+    )
 
 
 @router.get("/{vuln_id}", response_model=VulnerabilityInfo)
@@ -127,6 +143,7 @@ async def get_vulnerability(
 @router.post("", response_model=VulnerabilityInfo, status_code=status.HTTP_201_CREATED)
 async def create_vulnerability(
     vuln_data: VulnerabilityCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_editor),
 ):
@@ -152,6 +169,13 @@ async def create_vulnerability(
     db.add(history)
     await db.commit()
 
+    audit_log(
+        "vuln.create",
+        actor_id=str(user.id),
+        request=request,
+        target={"vulnerability_id": str(vuln.id)},
+    )
+
     return VulnerabilityInfo.model_validate(vuln)
 
 
@@ -159,6 +183,7 @@ async def create_vulnerability(
 async def update_vulnerability(
     vuln_id: UUID,
     vuln_data: VulnerabilityUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_editor),
 ):
@@ -196,12 +221,21 @@ async def update_vulnerability(
     db.add(history)
     await db.commit()
 
+    audit_log(
+        "vuln.update",
+        actor_id=str(user.id),
+        request=request,
+        target={"vulnerability_id": str(vuln.id)},
+        extra={"fields": sorted(update_data.keys())},
+    )
+
     return VulnerabilityInfo.model_validate(vuln)
 
 
 @router.delete("/{vuln_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_vulnerability(
     vuln_id: UUID,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_editor),
 ):
@@ -227,6 +261,13 @@ async def delete_vulnerability(
     # Delete
     await db.delete(vuln)
     await db.commit()
+
+    audit_log(
+        "vuln.delete",
+        actor_id=str(user.id),
+        request=request,
+        target={"vulnerability_id": str(vuln_id)},
+    )
 
     return None
 
@@ -297,6 +338,7 @@ async def get_bulk_vulnerabilities(
 @router.get("/{vuln_id}/exportdoc", response_model=VulnerabilityExportDoc)
 async def export_vulnerability_for_doc(
     vuln_id: UUID,
+    request: Request,
     format: str = Query("json", description="Export format (json or xml)"),
     db: AsyncSession = Depends(get_db),
     token: ApiToken = Depends(require_scope("export:doc")),
@@ -331,8 +373,33 @@ async def export_vulnerability_for_doc(
         tag_order=vuln.tag_order,
     )
 
-    # For now, always return JSON (XML export can be added later)
-    return export_data
+    audit_log(
+        "vuln.export_doc",
+        actor_id=str(token.owner_user_id),
+        request=request,
+        target={"vulnerability_id": str(vuln.id)},
+        extra={"format": format.lower()},
+    )
+
+    if format.lower() == "json":
+        return export_data
+    if format.lower() == "xml":
+        root = etree.Element("vulnerability")
+        for field, value in export_data.model_dump().items():
+            elem = etree.SubElement(root, field)
+            elem.text = "" if value is None else str(value)
+        xml_bytes = etree.tostring(
+            root,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="UTF-8",
+        )
+        return Response(content=xml_bytes, media_type="application/xml")
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Unsupported export format",
+    )
 
 
 # =============================================================================
@@ -342,6 +409,7 @@ async def export_vulnerability_for_doc(
 
 @router.post("/import/xml", status_code=status.HTTP_200_OK)
 async def import_vulnerabilities_xml(
+    request: Request,
     file: UploadFile = File(..., description="XML file containing vulnerabilities"),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_editor),
@@ -369,51 +437,111 @@ async def import_vulnerabilities_xml(
             detail=f"Failed to parse XML: {str(e)}",
         )
 
-    imported_count = 0
-    updated_count = 0
+    stats = {"created": 0, "updated": 0, "skipped": 0}
+    seen_ids: set[UUID] = set()
+    seen_names: set[str] = set()
 
-    for vuln_data in vulnerabilities_data:
-        # Check if vulnerability with same name exists
-        result = await db.execute(
-            select(Vulnerability).where(Vulnerability.name == vuln_data["name"])
-        )
-        existing = result.scalar_one_or_none()
+    try:
+        transaction_ctx = db.begin_nested() if db.in_transaction() else db.begin()
+        async with transaction_ctx:
+            for vuln_data in vulnerabilities_data:
+                xml_id: UUID | None = vuln_data.get("id")
+                name_key = vuln_data["name"].strip().lower()
 
-        if existing:
-            # Update existing
-            for field, value in vuln_data.items():
-                if field != "tag_order":  # Handle tag_order separately
-                    setattr(existing, field if field != "type" else "vuln_type", value)
+                if xml_id and xml_id in seen_ids:
+                    stats["skipped"] += 1
+                    continue
+
+                if name_key in seen_names:
+                    stats["skipped"] += 1
+                    continue
+
+                if xml_id:
+                    seen_ids.add(xml_id)
+                seen_names.add(name_key)
+
+                if xml_id:
+                    result = await db.execute(
+                        select(Vulnerability).where(Vulnerability.id == xml_id)
+                    )
+                    existing = result.scalar_one_or_none()
+                    if existing and existing.name.lower() != name_key:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=(
+                                "UUID collision detected for vulnerability name "
+                                f"'{vuln_data['name']}'"
+                            ),
+                        )
                 else:
-                    existing.tag_order = value
+                    result = await db.execute(
+                        select(Vulnerability).where(func.lower(Vulnerability.name) == name_key)
+                    )
+                    existing = result.scalar_one_or_none()
 
-            existing.updated_by = user.id
-            existing.updated_at = datetime.now(timezone.utc)
-            updated_count += 1
-        else:
-            # Create new
-            vuln = Vulnerability(
-                **{k: v for k, v in vuln_data.items() if k not in ["type", "tag_order"]},
-                vuln_type=vuln_data["type"],
-                tag_order=vuln_data.get("tag_order"),
-                created_by=user.id,
-                updated_by=user.id,
-            )
-            db.add(vuln)
-            imported_count += 1
+                if existing:
+                    for field, value in vuln_data.items():
+                        if field in {"tag_order", "id"}:
+                            continue
+                        setattr(existing, field if field != "type" else "vuln_type", value)
 
-    await db.commit()
+                    if "tag_order" in vuln_data:
+                        existing.tag_order = vuln_data["tag_order"]
+
+                    existing.updated_by = user.id
+                    existing.updated_at = datetime.now(timezone.utc)
+                    stats["updated"] += 1
+                else:
+                    create_kwargs = {
+                        key: value
+                        for key, value in vuln_data.items()
+                        if key not in {"type", "tag_order", "id"}
+                    }
+                    if xml_id:
+                        create_kwargs["id"] = xml_id
+
+                    vuln = Vulnerability(
+                        **create_kwargs,
+                        vuln_type=vuln_data["type"],
+                        tag_order=vuln_data.get("tag_order"),
+                        created_by=user.id,
+                        updated_by=user.id,
+                    )
+                    db.add(vuln)
+                    stats["created"] += 1
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to import vulnerabilities: {exc}",
+        ) from exc
+
+    summary = {
+        "created": stats["created"],
+        "updated": stats["updated"],
+        "skipped": stats["skipped"],
+        "total": stats["created"] + stats["updated"] + stats["skipped"],
+    }
+
+    audit_log(
+        "vuln.import_xml",
+        actor_id=str(user.id),
+        request=request,
+        extra=summary,
+    )
 
     return {
-        "message": "Import successful",
-        "imported": imported_count,
-        "updated": updated_count,
-        "total": imported_count + updated_count,
+        "status": "ok",
+        "message": "Import completed successfully",
+        "summary": summary,
     }
 
 
 @router.post("/export/xml")
 async def export_vulnerabilities_to_xml(
+    request: Request,
     ids: list[UUID] | None = None,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_active_user),
@@ -443,15 +571,17 @@ async def export_vulnerabilities_to_xml(
     # Convert to XML
     xml_content = export_vulnerabilities_xml(vulnerabilities)
 
-    # Return as XML response
-    from fastapi.responses import Response
-
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    headers = {
+        "Content-Disposition": f"attachment; filename=vulnerabilities_{timestamp}.xml",
+        "X-Items-Exported": str(len(vulnerabilities)),
+    }
 
-    return Response(
-        content=xml_content,
-        media_type="application/xml",
-        headers={
-            "Content-Disposition": f"attachment; filename=vulnerabilities_{timestamp}.xml"
-        },
+    audit_log(
+        "vuln.export_xml",
+        actor_id=str(user.id),
+        request=request,
+        extra={"count": len(vulnerabilities)},
     )
+
+    return Response(content=xml_content, media_type="application/xml", headers=headers)

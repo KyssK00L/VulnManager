@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import { broadcastUnauthorized, notify } from './notifications'
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   withCredentials: true,
@@ -7,6 +9,22 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status
+    if (status === 401) {
+      notify('Your session has expired. Please sign in again.', 'warning')
+      broadcastUnauthorized()
+    } else if (status === 403) {
+      notify('You do not have permission to perform this action.', 'error')
+    } else if (!status) {
+      notify('Network error. Please check your connection.', 'error')
+    }
+    return Promise.reject(error)
+  },
+)
 
 // Auth
 export const authApi = {

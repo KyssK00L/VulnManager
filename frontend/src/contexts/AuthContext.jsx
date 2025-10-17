@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../lib/api'
+import { subscribeUnauthorized } from '../lib/notifications'
 
 const AuthContext = createContext(null)
 
@@ -19,7 +20,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+    const unsubscribe = subscribeUnauthorized(() => {
+      setUser(null)
+      navigate('/login')
+    })
+    return () => unsubscribe()
+  }, [navigate])
 
   const checkAuth = async () => {
     try {
