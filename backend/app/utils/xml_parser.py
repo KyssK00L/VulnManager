@@ -30,8 +30,10 @@ def parse_vulnerabilities_xml(xml_content: bytes) -> list[dict[str, Any]]:
     Returns:
         List of dictionaries containing vulnerability data.
     """
+    parser = etree.XMLParser(resolve_entities=False, no_network=True)
+
     try:
-        root = etree.fromstring(xml_content)
+        root = etree.fromstring(xml_content, parser=parser)
     except etree.XMLSyntaxError as e:
         raise ValueError(f"Invalid XML: {e}")
 

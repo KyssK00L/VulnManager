@@ -1,6 +1,6 @@
 """FastAPI dependencies for auth, permissions, and rate limiting."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import Cookie, Depends, HTTPException, Header, status
@@ -31,7 +31,7 @@ class RateLimiter:
         Returns:
             True if under limit, False if exceeded
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now.timestamp() - window
 
         # Clean old requests
@@ -180,7 +180,7 @@ async def verify_api_token(
     if not api_token.is_valid:
         if api_token.revoked_at:
             detail = "Token has been revoked"
-        elif api_token.expires_at and api_token.expires_at < datetime.utcnow():
+        elif api_token.expires_at and api_token.expires_at < datetime.now(timezone.utc):
             detail = "Token has expired"
         else:
             detail = "Token is invalid"
@@ -192,7 +192,8 @@ async def verify_api_token(
         )
 
     # Update last used timestamp (fire and forget, don't await)
-    api_token.last_used_at = datetime.utcnow()
+    api_token.last_used_at = datetime.now(timezone.utc)
+    await db.commit()
     # In a real app, you'd also capture the IP address from the request
 
     return api_token, None
