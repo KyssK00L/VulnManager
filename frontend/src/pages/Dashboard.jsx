@@ -1,36 +1,57 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { vulnsApi } from '../lib/api'
 import { Search, Plus, Filter, Download, Upload } from 'lucide-react'
 import VulnerabilityCard from '../components/VulnerabilityCard'
 import VulnerabilityFilters from '../components/VulnerabilityFilters'
+import { notify } from '../lib/notifications'
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({})
   const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
+  const perPage = 12
+  const queryClient = useQueryClient()
 
-  const { data: vulnerabilities, isLoading } = useQuery({
-    queryKey: ['vulnerabilities', searchQuery, filters],
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ['vulnerabilities', searchQuery, filters, page, perPage],
     queryFn: () =>
-      vulnsApi.search({
-        q: searchQuery || undefined,
-        ...filters,
-      }).then((res) => res.data),
+      vulnsApi
+        .search({
+          q: searchQuery || undefined,
+          ...filters,
+          page,
+          per_page: perPage,
+        })
+        .then((res) => res.data),
+    keepPreviousData: true,
   })
+
+  const vulnerabilities = data?.items ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / perPage))
+  const rangeStart = total === 0 ? 0 : (page - 1) * perPage + 1
+  const rangeEnd = total === 0 ? 0 : rangeStart + vulnerabilities.length - 1
 
   const handleImport = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     try {
-      await vulnsApi.importXml(file)
-      // Refetch vulnerabilities
-      window.location.reload()
+      const response = await vulnsApi.importXml(file)
+      const summary = response.data.summary
+      notify(
+        `Import completed: ${summary.created} created, ${summary.updated} updated, ${summary.skipped} skipped`,
+        'success',
+      )
+      setPage(1)
+      await queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })
     } catch (error) {
-      alert('Import failed: ' + (error.response?.data?.detail || error.message))
+      notify(`Import failed: ${error.response?.data?.detail || error.message}`, 'error')
     }
+    e.target.value = ''
   }
 
   const handleExport = async () => {
@@ -43,9 +64,18 @@ export default function Dashboard() {
       link.download = `vulnerabilities_${new Date().toISOString().split('T')[0]}.xml`
       link.click()
       window.URL.revokeObjectURL(url)
+      const exported = response.headers['x-items-exported']
+      if (exported) {
+        notify(`Exported ${exported} vulnerabilities to XML.`, 'success')
+      }
     } catch (error) {
-      alert('Export failed: ' + (error.response?.data?.detail || error.message))
+      notify(`Export failed: ${error.response?.data?.detail || error.message}`, 'error')
     }
+  }
+
+  const handleFilterChange = (nextFilters) => {
+    setFilters(nextFilters)
+    setPage(1)
   }
 
   return (
@@ -86,7 +116,10 @@ export default function Dashboard() {
                   type="text"
                   placeholder="Search vulnerabilities..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setPage(1)
+                  }}
                   className="input pl-10"
                 />
               </div>
@@ -100,14 +133,14 @@ export default function Dashboard() {
 
             {/* Filters */}
             {showFilters && (
-              <VulnerabilityFilters filters={filters} onChange={setFilters} />
+              <VulnerabilityFilters filters={filters} onChange={handleFilterChange} />
             )}
           </div>
         </div>
 
         {/* Content */}
         <div className="p-4 lg:p-8">
-          {isLoading ? (
+          {isLoading && vulnerabilities.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
             </div>
@@ -116,11 +149,43 @@ export default function Dashboard() {
               <p className="text-gray-500">No vulnerabilities found</p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {vulnerabilities?.map((vuln) => (
-                <VulnerabilityCard key={vuln.id} vulnerability={vuln} />
-              ))}
-            </div>
+            <>
+              <div className="flex items-center justify-between pb-4 text-sm text-gray-600">
+                <span>
+                  Showing {rangeStart.toLocaleString()}–{rangeEnd.toLocaleString()} of {total.toLocaleString()}{' '}
+                  vulnerabilities
+                </span>
+                {isFetching && (
+                  <span className="italic text-gray-400">Refreshing…</span>
+                )}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {vulnerabilities?.map((vuln) => (
+                  <VulnerabilityCard key={vuln.id} vulnerability={vuln} />
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-center gap-4">
+                  <button
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    className="btn btn-secondary"
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    Page {page} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                    className="btn btn-secondary"
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

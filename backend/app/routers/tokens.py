@@ -3,12 +3,12 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import require_admin
+from app.dependencies import rate_limited, require_admin
 from app.models.api_token import ApiToken
 from app.models.user import User
 from app.schemas.token import (
@@ -18,6 +18,7 @@ from app.schemas.token import (
     ApiTokenWithSecret,
 )
 from app.security import generate_api_token, get_default_token_expiration, hash_token
+from app.utils.audit import audit_log
 
 router = APIRouter(prefix="/api/tokens", tags=["tokens"])
 
@@ -25,6 +26,8 @@ router = APIRouter(prefix="/api/tokens", tags=["tokens"])
 @router.post("", response_model=ApiTokenWithSecret, status_code=status.HTTP_201_CREATED)
 async def create_token(
     token_data: ApiTokenCreate,
+    request: Request,
+    _: None = Depends(rate_limited("tokens:create", limit=10, window=60)),
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -56,6 +59,17 @@ async def create_token(
     # Return with plain token (only time it's visible)
     response = ApiTokenWithSecret.model_validate(new_token)
     response.token = plain_token
+
+    audit_log(
+        "token.create",
+        actor_id=str(admin.id),
+        request=request,
+        target={"token_id": str(new_token.id)},
+        extra={
+            "scopes": new_token.scopes,
+            "expires_at": new_token.expires_at.isoformat() if new_token.expires_at else None,
+        },
+    )
 
     return response
 
@@ -102,6 +116,7 @@ async def get_token(
 @router.delete("/{token_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def revoke_token(
     token_id: UUID,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -123,12 +138,21 @@ async def revoke_token(
     token.revoked_at = datetime.now(timezone.utc)
     await db.commit()
 
+    audit_log(
+        "token.revoke",
+        actor_id=str(admin.id),
+        request=request,
+        target={"token_id": str(token_id)},
+    )
+
     return None
 
 
 @router.post("/{token_id}/rotate", response_model=ApiTokenWithSecret)
 async def rotate_token(
     token_id: UUID,
+    request: Request,
+    _: None = Depends(rate_limited("tokens:rotate", limit=20, window=60)),
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -162,6 +186,13 @@ async def rotate_token(
     # Return with new plain token (only time it's visible)
     response = ApiTokenWithSecret.model_validate(token)
     response.token = new_plain_token
+
+    audit_log(
+        "token.rotate",
+        actor_id=str(admin.id),
+        request=request,
+        target={"token_id": str(token_id)},
+    )
 
     return response
 

@@ -1,9 +1,12 @@
 """FastAPI dependencies for auth, permissions, and rate limiting."""
 
-from datetime import datetime, timezone
-from typing import Annotated
+from __future__ import annotations
 
-from fastapi import Cookie, Depends, HTTPException, Header, status
+import asyncio
+from datetime import datetime, timezone
+from typing import Annotated, Callable
+
+from fastapi import Cookie, Depends, Header, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,15 +14,17 @@ from app.database import get_db
 from app.models.api_token import ApiToken
 from app.models.user import User, UserRole
 from app.security import hash_token
+from app.utils.session_manager import SessionContext, validate_session
 
 
 class RateLimiter:
     """Simple in-memory rate limiter (for production, use Redis)."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.requests: dict[str, list[datetime]] = {}
+        self._lock = asyncio.Lock()
 
-    def check_rate_limit(self, identifier: str, limit: int = 60, window: int = 60) -> bool:
+    async def check_rate_limit(self, identifier: str, limit: int = 60, window: int = 60) -> bool:
         """
         Check if identifier has exceeded rate limit.
 
@@ -34,69 +39,82 @@ class RateLimiter:
         now = datetime.now(timezone.utc)
         cutoff = now.timestamp() - window
 
-        # Clean old requests
-        if identifier in self.requests:
-            self.requests[identifier] = [
-                req for req in self.requests[identifier]
-                if req.timestamp() > cutoff
-            ]
-        else:
-            self.requests[identifier] = []
+        async with self._lock:
+            if identifier in self.requests:
+                self.requests[identifier] = [
+                    req for req in self.requests[identifier]
+                    if req.timestamp() > cutoff
+                ]
+            else:
+                self.requests[identifier] = []
 
-        # Check limit
-        if len(self.requests[identifier]) >= limit:
-            return False
+            if len(self.requests[identifier]) >= limit:
+                return False
 
-        # Add new request
-        self.requests[identifier].append(now)
-        return True
+            self.requests[identifier].append(now)
+            return True
 
 
 rate_limiter = RateLimiter()
+
+
+async def enforce_rate_limit(
+    request: Request,
+    *,
+    scope: str,
+    limit: int,
+    window: int,
+) -> None:
+    """Apply a rate limit using the remote IP address as identifier."""
+
+    from app.config import settings
+
+    if not settings.rate_limit_enabled:
+        return
+
+    client_ip = request.client.host if request.client else "unknown"
+    identifier = f"{scope}:{client_ip}"
+    allowed = await rate_limiter.check_rate_limit(identifier, limit=limit, window=window)
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again later.",
+        )
+
+
+def rate_limited(
+    scope: str,
+    *,
+    limit: int | None = None,
+    window: int = 60,
+) -> Callable[[Request], None]:
+    from app.config import settings
+
+    async def dependency(request: Request) -> None:
+        await enforce_rate_limit(
+            request,
+            scope=scope,
+            limit=limit or settings.rate_limit_per_minute,
+            window=window,
+        )
+
+    return dependency
 
 
 async def get_current_user_from_session(
     session_id: Annotated[str | None, Cookie(alias="session_id")] = None,
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """
-    Get current user from session cookie.
+    """Get current user from signed session cookie."""
 
-    This is a simplified session implementation.
-    In production, use a proper session store (Redis, database).
-    """
     if not session_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
         )
 
-    # For this MVP, we'll use a simple session format: "user_id:timestamp:signature"
-    # In production, use proper session management with Redis or similar
-    try:
-        parts = session_id.split(":")
-        if len(parts) < 2:
-            raise ValueError("Invalid session format")
-
-        user_id = parts[0]
-
-        # Get user from database
-        result = await db.execute(select(User).where(User.id == user_id))
-        user = result.scalar_one_or_none()
-
-        if not user or not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid session or user inactive",
-            )
-
-        return user
-
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid session",
-        )
+    session_context: SessionContext = await validate_session(db, session_id)
+    return session_context.user
 
 
 async def get_current_active_user(
@@ -199,7 +217,7 @@ async def verify_api_token(
     return api_token, None
 
 
-async def require_scope(
+def require_scope(
     required_scope: str,
 ) -> callable:
     """

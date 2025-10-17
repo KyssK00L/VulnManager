@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import NotificationCenter from './NotificationCenter'
 import {
   Menu,
   X,
@@ -25,6 +26,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <NotificationCenter />
       {/* Mobile header */}
       <header className="sticky top-0 z-50 bg-white shadow-sm lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">

@@ -3,11 +3,13 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import ARRAY, DateTime, ForeignKey, String, func
+from sqlalchemy import ARRAY, DateTime, ForeignKey, JSON, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+SCOPES_TYPE = ARRAY(String).with_variant(JSON(), "sqlite")
 
 
 class ApiToken(Base):
@@ -23,7 +25,7 @@ class ApiToken(Base):
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
 
     # Scopes define what the token can access
-    scopes: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
+    scopes: Mapped[list[str]] = mapped_column(SCOPES_TYPE, nullable=False)
 
     # Lifecycle
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -49,7 +51,8 @@ class ApiToken(Base):
             return False
 
         # Check if expired
-        if self.expires_at is not None and self.expires_at < now:
+        expires_at = self._coerce_to_utc(self.expires_at)
+        if expires_at is not None and expires_at < now:
             return False
 
         return True
@@ -57,3 +60,11 @@ class ApiToken(Base):
     def has_scope(self, required_scope: str) -> bool:
         """Check if token has a specific scope."""
         return required_scope in self.scopes
+
+    @staticmethod
+    def _coerce_to_utc(value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value

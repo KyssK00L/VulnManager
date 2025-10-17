@@ -37,7 +37,12 @@ class User(Base):
     )
 
     # Relationships
-    tokens: Mapped[list["ApiToken"]] = relationship("ApiToken", back_populates="owner", cascade="all, delete-orphan")
+    tokens: Mapped[list["ApiToken"]] = relationship(
+        "ApiToken", back_populates="owner", cascade="all, delete-orphan"
+    )
+    sessions: Mapped[list["Session"]] = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<User {self.email} ({self.role.value})>"

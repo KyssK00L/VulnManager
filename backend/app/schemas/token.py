@@ -45,7 +45,9 @@ class ApiTokenInfo(BaseModel):
 class ApiTokenWithSecret(ApiTokenInfo):
     """Schema for API token with secret (only returned once on creation)."""
 
-    token: str = Field(..., description="The actual bearer token (only shown once)")
+    token: str | None = Field(
+        None, description="The actual bearer token (only shown once)"
+    )
 
 
 class ApiTokenRotate(BaseModel):
