@@ -16,9 +16,16 @@ database_url = str(settings.database_url)
 try:  # pragma: no cover - optional dependency check
     import asyncpg  # noqa: F401
 except ModuleNotFoundError:  # pragma: no cover - exercised in environments without asyncpg
-    engine_kwargs: dict[str, Any] = {"async_fallback": True}
+    try:
+        import psycopg  # noqa: F401
+    except ModuleNotFoundError as exc:  # pragma: no cover - missing fallback driver
+        raise RuntimeError(
+            "Neither asyncpg nor psycopg is installed; install one of them to run database operations"
+        ) from exc
+    engine_kwargs = {"async_fallback": True}
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
     logger.warning(
-        "asyncpg not installed; falling back to psycopg2 driver for database connections"
+        "asyncpg not installed; falling back to psycopg driver for database connections"
     )
 else:
     engine_kwargs = {}
