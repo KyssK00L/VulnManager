@@ -11,12 +11,15 @@ down_revision: str | None = None
 branch_labels: Sequence[str] | None = None
 depends_on: Sequence[str] | None = None
 
-user_role_enum = sa.Enum("viewer", "editor", "admin", name="userrole")
+user_role_enum_type = sa.Enum("viewer", "editor", "admin", name="userrole")
+user_role_enum = sa.Enum(
+    "viewer", "editor", "admin", name="userrole", create_type=False
+)
 
 
 def upgrade() -> None:
     bind = op.get_bind()
-    user_role_enum.create(bind, checkfirst=True)
+    user_role_enum_type.create(bind, checkfirst=True)
 
     op.create_table(
         "users",
@@ -73,5 +76,4 @@ def downgrade() -> None:
     op.drop_index("ix_users_email", table_name="users")
     op.drop_table("users")
 
-    bind = op.get_bind()
-    user_role_enum.drop(bind, checkfirst=True)
+    op.execute(sa.text("DROP TYPE IF EXISTS userrole"))
