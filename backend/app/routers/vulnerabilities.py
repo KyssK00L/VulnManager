@@ -1,6 +1,6 @@
 """Vulnerability CRUD and search routes."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -181,7 +181,7 @@ async def update_vulnerability(
         setattr(vuln, field, value)
 
     vuln.updated_by = user.id
-    vuln.updated_at = datetime.utcnow()
+    vuln.updated_at = datetime.now(timezone.utc)
 
     await db.commit()
     await db.refresh(vuln)
@@ -388,7 +388,7 @@ async def import_vulnerabilities_xml(
                     existing.tag_order = value
 
             existing.updated_by = user.id
-            existing.updated_at = datetime.utcnow()
+            existing.updated_at = datetime.now(timezone.utc)
             updated_count += 1
         else:
             # Create new
@@ -446,10 +446,12 @@ async def export_vulnerabilities_to_xml(
     # Return as XML response
     from fastapi.responses import Response
 
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+
     return Response(
         content=xml_content,
         media_type="application/xml",
         headers={
-            "Content-Disposition": f"attachment; filename=vulnerabilities_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.xml"
+            "Content-Disposition": f"attachment; filename=vulnerabilities_{timestamp}.xml"
         },
     )

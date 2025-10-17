@@ -1,7 +1,7 @@
 """API Token model for Word macro authentication."""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ARRAY, DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -42,7 +42,7 @@ class ApiToken(Base):
     @property
     def is_valid(self) -> bool:
         """Check if token is currently valid."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Check if revoked
         if self.revoked_at is not None:
