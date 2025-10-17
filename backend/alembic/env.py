@@ -1,10 +1,11 @@
-"""Alembic environment configuration for async SQLAlchemy."""
+"""Alembic environment configuration for SQLAlchemy."""
 
 import asyncio
+import logging
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -20,6 +21,16 @@ from app.models import (
     VulnerabilityHistory,
 )  # noqa: F401
 
+logger = logging.getLogger(__name__)
+
+try:  # pragma: no cover - optional dependency check
+    import asyncpg  # noqa: F401
+except ModuleNotFoundError:  # pragma: no cover - exercised in environments without asyncpg
+    USE_ASYNC_DRIVER = False
+    logger.warning("asyncpg not installed; running migrations with psycopg2 driver")
+else:
+    USE_ASYNC_DRIVER = True
+
 # this is the Alembic Config object
 config = context.config
 
@@ -28,7 +39,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Set database URL from settings
-database_url = str(settings.database_url).replace("postgresql://", "postgresql+asyncpg://")
+database_url = str(settings.database_url)
+if USE_ASYNC_DRIVER:
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
 config.set_main_option("sqlalchemy.url", database_url)
 
 # add your model's MetaData object here for 'autogenerate' support
@@ -72,9 +85,26 @@ async def run_async_migrations() -> None:
     await connectable.dispose()
 
 
+def run_sync_migrations() -> None:
+    """Run migrations in sync mode when async driver is unavailable."""
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        do_run_migrations(connection)
+
+    connectable.dispose()
+
+
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    asyncio.run(run_async_migrations())
+    if USE_ASYNC_DRIVER:
+        asyncio.run(run_async_migrations())
+    else:
+        run_sync_migrations()
 
 
 if context.is_offline_mode():
