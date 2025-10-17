@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import engine
-from app.routers import auth, tokens, vulnerabilities
+from app.routers import auth, cvss, tokens, vulnerabilities
 
 
 @asynccontextmanager
@@ -40,6 +40,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(tokens.router)
 app.include_router(vulnerabilities.router)
+app.include_router(cvss.router)
 
 
 @app.get("/")

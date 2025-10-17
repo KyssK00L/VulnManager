@@ -20,6 +20,7 @@
 - Page d'administration des tokens (admin-only)
 - Import/export XML via l'interface
 - Gestion des utilisateurs et des rôles (viewer, editor, admin)
+- **Calculateur CVSS 3.1 intégré** avec interface interactive
 
 ### Intégration Word (VBA)
 - Macro VBA avec UserForm interactive
@@ -149,7 +150,12 @@ La macro est maintenant configurée !
    - Rechercher, filtrer, trier
    - Créer, modifier, supprimer (rôles editor/admin)
    - Importer/exporter XML
-3. **Gestion des tokens** (admin uniquement):
+3. **Calculateur CVSS**:
+   - Calculer les scores CVSS 3.1 en sélectionnant les métriques
+   - Copier le vecteur CVSS généré
+   - Exporter les résultats en JSON
+   - Aide contextuelle pour chaque métrique
+4. **Gestion des tokens** (admin uniquement):
    - Créer des tokens pour les macros Word
    - Révoquer ou rotater les tokens
    - Voir l'historique d'utilisation
@@ -296,6 +302,11 @@ Format d'import/export :
 ### Word Integration (token auth)
 - `GET /api/vulns/bulk` - Cache pour macro (scope: read:vulns)
 - `GET /api/vulns/{id}/exportdoc` - Export pour insertion (scope: export:doc)
+
+### CVSS Calculator
+- `POST /api/cvss/calculate` - Calculer le score depuis un vecteur CVSS
+- `POST /api/cvss/build` - Construire un vecteur et calculer depuis les métriques
+- `GET /api/cvss/metrics` - Obtenir les définitions des métriques CVSS 3.1
 
 ## Contribution
 
