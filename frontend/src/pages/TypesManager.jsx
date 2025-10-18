@@ -54,19 +54,20 @@ export default function TypesManager() {
     setExpandedCategories(prev => {
       const next = new Set(prev)
       if (next.has(category)) {
+        // Remove from collapsed set = expand it
         next.delete(category)
       } else {
+        // Add to collapsed set = collapse it
         next.add(category)
       }
       return next
     })
   }
 
-  // Check if category is expanded (default to expanded if not in set)
+  // Check if category is expanded (collapsed categories are in the set)
   const isCategoryExpanded = (category) => {
-    // If no categories have been toggled yet, show all as expanded
-    if (expandedCategories.size === 0) return true
-    return expandedCategories.has(category)
+    // Categories NOT in the set are expanded (default state)
+    return !expandedCategories.has(category)
   }
 
   const handleEdit = (type) => {
