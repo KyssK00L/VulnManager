@@ -301,12 +301,16 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
   }
 
   const handleApply = () => {
+    console.log('Apply CVSS clicked, result:', result)
     if (result) {
       onApply({
         score: result.score,
         vector: result.vector,
       })
+      console.log('CVSS applied, closing modal')
       onClose()
+    } else {
+      console.warn('Cannot apply - no result available')
     }
   }
 
