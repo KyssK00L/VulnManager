@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Container Security Vulnerabilities - Docker and Kubernetes -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Container Running as Root</Name>
+    <Level>High</Level>
+    <Scope>Container - Docker/Kubernetes</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Containers run with root user (UID 0) inside container. No USER directive in Dockerfile. Kubernetes pods without securityContext.runAsNonRoot. Privileged containers with full host access. No user namespace remapping.</Description>
+    <Risk>Root containers increase risk of:
+- Container escape to host system
+- Host system compromise via kernel exploits
+- Privilege escalation attacks
+- Unrestricted file system access
+- Capability abuse
+- Reduced container isolation
+- Easier lateral movement
+- Compliance violations
+- Increased blast radius
+- Difficult security auditing</Risk>
+    <Recommendation>1. Create non-root user in Dockerfile
+2. Use USER directive to specify non-root user
+3. Dockerfile: RUN useradd -m appuser &amp;&amp; USER appuser
+4. Kubernetes: securityContext.runAsNonRoot: true
+5. Set runAsUser to specific UID
+6. Never use --privileged flag
+7. Drop unnecessary capabilities
+8. Enable user namespace remapping
+9. Use read-only root filesystem
+10. Implement Pod Security Standards
+11. Regular security scanning
+12. Use distroless or minimal base images</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Exposed Docker Daemon Socket</Name>
+    <Level>Critical</Level>
+    <Scope>Container - Docker Engine</Scope>
+    <Protocol-Interface>Unix Socket /var/run/docker.sock</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Docker socket mounted in containers (-v /var/run/docker.sock:/var/run/docker.sock). Docker daemon exposed over TCP without TLS. Socket accessible to non-root users. No authentication on Docker API.</Description>
+    <Risk>Docker socket exposure enables:
+- Complete container escape
+- Host system takeover
+- Arbitrary container creation with host mounts
+- Access to all container secrets
+- Network manipulation
+- Image manipulation
+- Container orchestration control
+- Lateral movement to all containers
+- Persistent backdoors
+- Complete infrastructure compromise</Risk>
+    <Recommendation>1. Never mount docker.sock in untrusted containers
+2. Use rootless Docker
+3. Enable Docker Content Trust
+4. Use TLS for remote Docker access
+5. Implement socket access controls
+6. Use Docker context for secure remote access
+7. Monitor docker.sock access
+8. Implement admission controllers (Kubernetes)
+9. Use gVisor or Kata Containers
+10. Least privilege access
+11. Container runtime security monitoring
+12. Network policies for container isolation</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Kubernetes RBAC Misconfiguration</Name>
+    <Level>High</Level>
+    <Scope>Container - Kubernetes Access Control</Scope>
+    <Protocol-Interface>Kubernetes API/6443</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Service accounts with cluster-admin privileges. Wildcard permissions in RBAC roles. Default service account used for pods. No Pod Security Admission. Overly permissive ClusterRoles. Namespace-wide admin access.</Description>
+    <Risk>Weak RBAC enables:
+- Privilege escalation to cluster admin
+- Unauthorized pod creation and modification
+- Secret access across namespaces
+- Node compromise via privileged pods
+- Persistent backdoor deployment
+- Data exfiltration from all containers
+- Service disruption
+- Compliance violations
+- Lateral movement across cluster
+- Complete cluster takeover</Risk>
+    <Recommendation>1. Apply principle of least privilege
+2. Avoid cluster-admin except where necessary
+3. Use specific verbs instead of wildcards
+4. Create dedicated service accounts per application
+5. Implement Pod Security Standards (restricted)
+6. Disable default service account automounting
+7. Regular RBAC audits with kubectl-who-can
+8. Use OPA/Gatekeeper for policy enforcement
+9. Implement network policies
+10. Enable audit logging
+11. Use admission controllers
+12. Regular security assessments</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Container Image Vulnerabilities</Name>
+    <Level>High</Level>
+    <Scope>Container - Image Security</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Container images use outdated base images with known vulnerabilities. Images from untrusted registries. No image scanning in CI/CD. Critical CVEs in installed packages. Images not signed or verified.</Description>
+    <Risk>Vulnerable images expose:
+- Known CVE exploitation
+- Remote code execution
+- Privilege escalation
+- Data breaches
+- Malware in supply chain
+- Backdoored images
+- Cryptominers
+- Compliance violations
+- Increased attack surface
+- Difficult patching at scale</Risk>
+    <Recommendation>1. Use minimal base images (Alpine, distroless)
+2. Scan images with Trivy, Clair, or Snyk
+3. Implement image scanning in CI/CD
+4. Use trusted registries only
+5. Enable Docker Content Trust
+6. Sign images with Cosign
+7. Regular base image updates
+8. Vulnerability remediation SLA
+9. Implement admission controllers to block vulnerable images
+10. Use private registries
+11. Multi-stage builds to reduce image size
+12. Regular security audits</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Secrets in Container Environment Variables</Name>
+    <Level>High</Level>
+    <Scope>Container - Secret Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database passwords and API keys in environment variables. Secrets in Dockerfiles or docker-compose.yml. Kubernetes secrets used as environment variables. Secrets visible in docker inspect. No encryption of secrets at rest.</Description>
+    <Risk>Exposed secrets enable:
+- Credential theft via container inspection
+- Database and API compromise
+- Lateral movement with stolen credentials
+- Secret disclosure in logs
+- Container image analysis revealing secrets
+- Compliance violations
+- Difficulty rotating secrets
+- Supply chain attacks
+- Third-party service abuse
+- Long-term credential exposure</Risk>
+    <Recommendation>1. Use Kubernetes Secrets as mounted volumes
+2. Implement HashiCorp Vault or external secret managers
+3. Enable encryption at rest for Kubernetes secrets
+4. Use External Secrets Operator
+5. Never commit secrets to version control
+6. Use sealed secrets for GitOps
+7. Implement secret rotation
+8. Scan images for secrets (git-secrets, TruffleHog)
+9. Use cloud provider secret managers (AWS Secrets Manager, etc.)
+10. Implement RBAC for secret access
+11. Audit secret access
+12. Use workload identity for cloud secrets</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unrestricted Container Networking</Name>
+    <Level>Medium</Level>
+    <Scope>Container - Network Isolation</Scope>
+    <Protocol-Interface>Container Network</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>No network policies in Kubernetes. Containers can communicate freely. Host network mode used unnecessarily. Ingress/egress not restricted. No service mesh security. Flat network topology.</Description>
+    <Risk>Unrestricted networking enables:
+- Lateral movement between containers
+- Unauthorized service access
+- Data exfiltration
+- Command and control communication
+- Network reconnaissance
+- Privilege escalation via network services
+- Service mesh bypass
+- Compliance violations
+- Difficult incident containment
+- Increased blast radius</Risk>
+    <Recommendation>1. Implement Kubernetes Network Policies
+2. Default deny all traffic
+3. Whitelist necessary communication only
+4. Use Calico or Cilium for advanced policies
+5. Avoid hostNetwork mode
+6. Implement service mesh (Istio, Linkerd)
+7. Encrypt inter-pod communication
+8. Implement egress filtering
+9. Use namespace isolation
+10. Regular network policy audits
+11. Monitor network traffic
+12. Zero trust networking principles</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Container Registry Without Authentication</Name>
+    <Level>High</Level>
+    <Scope>Container - Registry Security</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Container registry accessible without authentication. Public read/write access. No RBAC on registry. Images not scanned before push. Registry over HTTP without TLS. No image signing enforcement.</Description>
+    <Risk>Insecure registry enables:
+- Unauthorized image access
+- Image tampering and poisoning
+- Malicious image injection
+- Intellectual property theft
+- Supply chain attacks
+- Backdoor installation in images
+- Data exfiltration via images
+- Compliance violations
+- Credential harvesting from images
+- Repository takeover</Risk>
+    <Recommendation>1. Enable authentication on registry
+2. Use RBAC for access control
+3. Implement image scanning
+4. Enable Content Trust
+5. Use private registries
+6. TLS/HTTPS only
+7. Implement image signing and verification
+8. Regular vulnerability scanning
+9. Access logging and monitoring
+10. Implement admission controllers
+11. Use managed registries (ECR, ACR, GCR)
+12. Regular security audits</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Kubernetes Dashboard Exposed</Name>
+    <Level>Critical</Level>
+    <Scope>Container - Kubernetes Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Kubernetes Dashboard exposed to internet. No authentication required or weak credentials. Service type LoadBalancer without restrictions. Anonymous access enabled. Dashboard has cluster-admin privileges.</Description>
+    <Risk>Exposed dashboard enables:
+- Complete cluster takeover
+- Unauthorized pod creation
+- Secret access
+- Node compromise
+- Service manipulation
+- Persistent backdoors
+- Data exfiltration
+- Resource abuse (cryptomining)
+- Compliance violations
+- Entire infrastructure compromise</Risk>
+    <Recommendation>1. Never expose dashboard to internet
+2. Use kubectl proxy for local access
+3. Implement strong authentication (OIDC)
+4. Apply least privilege RBAC
+5. Disable anonymous access
+6. Use service type ClusterIP
+7. Implement network policies
+8. Enable audit logging
+9. Use alternative UIs (Lens, k9s)
+10. Regular access reviews
+11. Monitor dashboard access
+12. Consider disabling dashboard entirely</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Missing Container Resource Limits</Name>
+    <Level>Medium</Level>
+    <Scope>Container - Resource Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>5.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L</CVSS3.1_VectorString>
+    <Description>Containers without CPU and memory limits. No resource quotas on namespaces. Pods can consume unlimited resources. No limit ranges configured. Potential for resource exhaustion and noisy neighbor issues.</Description>
+    <Risk>Missing limits enable:
+- Resource exhaustion (CPU, memory)
+- Node crashes from OOM
+- Denial of service
+- Cryptocurrency mining abuse
+- Noisy neighbor impact
+- Cluster instability
+- Cost overruns
+- Service degradation
+- Difficult capacity planning
+- SLA violations</Risk>
+    <Recommendation>1. Set CPU and memory limits on all containers
+2. Implement resource quotas per namespace
+3. Use LimitRanges for defaults
+4. Monitor resource usage
+5. Implement pod priority and preemption
+6. Use Vertical Pod Autoscaler
+7. Set appropriate requests and limits
+8. Implement cost controls
+9. Regular resource audits
+10. Capacity planning
+11. Alerting on resource saturation
+12. Cluster autoscaling</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Privileged Container Execution</Name>
+    <Level>Critical</Level>
+    <Scope>Container - Container Runtime</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>9.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Containers running with --privileged flag. All Linux capabilities granted. Host devices accessible. AppArmor/SELinux disabled. securityContext.privileged: true in Kubernetes. No Pod Security Standards enforcement.</Description>
+    <Risk>Privileged containers enable:
+- Complete container escape
+- Host kernel exploitation
+- Device access and manipulation
+- Full system compromise
+- Bypassing all security controls
+- Persistent rootkits
+- Kernel module loading
+- Host file system access
+- Network manipulation
+- Cluster-wide compromise</Risk>
+    <Recommendation>1. Never use --privileged flag
+2. Drop all capabilities and add only needed ones
+3. Implement Pod Security Standards (restricted)
+4. Enable AppArmor/SELinux profiles
+5. Use seccomp profiles
+6. Disable privileged containers via admission controllers
+7. Regular security audits
+8. Use gVisor or Kata Containers for additional isolation
+9. Monitor for privileged container creation
+10. Implement runtime security (Falco)
+11. Network segmentation
+12. Principle of least privilege</Recommendation>
+    <Type>Container/Docker</Type>
+  </vulnerability>
+</vulnerabilities>

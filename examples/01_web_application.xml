@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Web Application Security Vulnerabilities - OWASP Top 10 and Common Web Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>SQL Injection in Login Form</Name>
+    <Level>Critical</Level>
+    <Scope>Web Application - Authentication Module</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>The login form is vulnerable to SQL injection through the username parameter. By injecting SQL metacharacters (e.g., ' OR '1'='1), an attacker can bypass authentication and gain unauthorized access to user accounts. The application directly concatenates user input into SQL queries without proper sanitization or parameterization.</Description>
+    <Risk>Successful exploitation allows an attacker to:
+- Bypass authentication without valid credentials
+- Extract sensitive data from the database (usernames, password hashes, PII)
+- Modify or delete database records
+- Execute administrative operations on the database
+- Potentially gain remote code execution through database features (e.g., xp_cmdshell in MSSQL)
+- Compromise the entire application and underlying infrastructure</Risk>
+    <Recommendation>1. Use prepared statements (parameterized queries) for all database operations
+2. Implement input validation with whitelist approach
+3. Apply principle of least privilege to database accounts
+4. Escape special characters in user input
+5. Deploy a Web Application Firewall (WAF) with SQL injection rules
+6. Conduct regular code reviews and security testing
+7. Use an ORM (Object-Relational Mapping) framework with built-in protections
+8. Implement database activity monitoring and alerting</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Stored Cross-Site Scripting (XSS) in User Profile</Name>
+    <Level>High</Level>
+    <Scope>Web Application - User Profile Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>User-controlled data in profile fields (bio, display name) is stored in the database and rendered in other users' browsers without proper output encoding. This allows attackers to inject malicious JavaScript that executes in the context of victim users viewing the profile.</Description>
+    <Risk>An attacker can inject persistent malicious scripts that:
+- Steal session cookies and authentication tokens
+- Perform actions on behalf of victims (account takeover)
+- Redirect users to phishing sites
+- Deface web pages
+- Harvest sensitive information
+- Create worms that self-propagate across user accounts
+- Bypass CSRF protections
+- Install keyloggers or form grabbers</Risk>
+    <Recommendation>1. Implement context-aware output encoding (HTML, JavaScript, URL, CSS)
+2. Use Content Security Policy (CSP) headers to restrict script execution
+3. Employ HTTPOnly and Secure flags on session cookies
+4. Sanitize user input on both client and server side
+5. Use modern frameworks with auto-escaping (React, Angular, Vue)
+6. Implement input validation with character whitelisting
+7. Consider using a security library like DOMPurify for rich content
+8. Regular security assessments and penetration testing</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Reflected Cross-Site Scripting (XSS) in Search</Name>
+    <Level>High</Level>
+    <Scope>Web Application - Search Functionality</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L</CVSS3.1_VectorString>
+    <Description>The search functionality reflects user input in search results without proper sanitization. Attackers can craft malicious URLs containing JavaScript payloads that execute when victims click the link.</Description>
+    <Risk>Reflected XSS enables:
+- Session hijacking via cookie theft
+- Credential harvesting through fake login forms
+- Keylogging and form grabbing
+- Redirecting to malicious sites
+- Performing actions on behalf of the victim
+- Spreading via social engineering
+- Bypassing anti-CSRF tokens</Risk>
+    <Recommendation>1. Encode all output using context-appropriate encoding
+2. Implement strict Content Security Policy
+3. Use HTTPOnly cookies
+4. Validate and sanitize all user inputs
+5. Use X-XSS-Protection header
+6. Deploy WAF rules for XSS patterns
+7. Regular penetration testing</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Direct Object Reference (IDOR) in Document Access</Name>
+    <Level>High</Level>
+    <Scope>Web Application - Document Management System</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>The document download endpoint uses predictable sequential IDs (e.g., /api/documents/1234) without verifying that the authenticated user has permission to access the requested resource. Attackers can enumerate and access documents belonging to other users by simply changing the ID parameter.</Description>
+    <Risk>Unauthorized access to sensitive documents including:
+- Confidential business information
+- Personal identifiable information (PII)
+- Financial records
+- Trade secrets
+- Internal communications
+- Customer data
+- Compliance and legal documents
+This violates data privacy regulations (GDPR, HIPAA, CCPA) and can lead to data breaches.</Risk>
+    <Recommendation>1. Implement proper authorization checks on every request
+2. Use indirect reference maps (mapping user session to allowed object IDs)
+3. Replace predictable IDs with UUIDs or cryptographic tokens
+4. Implement access control lists (ACLs) or role-based access control (RBAC)
+5. Log all access attempts for security monitoring
+6. Conduct regular authorization testing during development
+7. Use framework-level authorization middleware
+8. Implement rate limiting on API endpoints</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Server-Side Request Forgery (SSRF)</Name>
+    <Level>High</Level>
+    <Scope>Web Application - URL Preview Feature</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.6</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application's URL preview functionality accepts arbitrary URLs without validation and fetches them server-side. An attacker can provide internal network addresses (e.g., http://localhost:6379, http://169.254.169.254/latest/meta-data/) to access internal services and cloud metadata endpoints.</Description>
+    <Risk>SSRF exploitation can lead to:
+- Access to internal services not exposed to the internet
+- Reading cloud instance metadata (AWS, Azure, GCP credentials)
+- Port scanning of internal network
+- Bypassing firewalls and network segmentation
+- Reading local files via file:// protocol
+- Attacking internal APIs and databases
+- Remote code execution on internal services
+- Data exfiltration from internal systems</Risk>
+    <Recommendation>1. Implement a whitelist of allowed domains and protocols
+2. Disable redirects or carefully validate redirect destinations
+3. Use a separate network segment for URL fetching with restricted access
+4. Block access to private IP ranges (RFC 1918, loopback, link-local)
+5. Disable unused URL schemes (file://, gopher://, dict://)
+6. Implement timeout and rate limiting
+7. Use DNS validation to prevent DNS rebinding attacks
+8. Consider using a dedicated service for URL fetching with limited privileges</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>XML External Entity (XXE) Injection</Name>
+    <Level>High</Level>
+    <Scope>Web Application - File Upload API</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.2</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N</CVSS3.1_VectorString>
+    <Description>The XML file upload endpoint parses XML documents without disabling external entity processing. Attackers can submit specially crafted XML files containing external entity declarations to read local files, perform SSRF attacks, or cause denial of service.</Description>
+    <Risk>XXE attacks enable:
+- Reading sensitive files from the server (/etc/passwd, application configs, source code)
+- SSRF to access internal network resources
+- Denial of Service through billion laughs attack or external entity expansion
+- Port scanning of internal networks
+- Potential remote code execution in certain configurations
+- Data exfiltration via out-of-band channels
+- Credential theft from configuration files</Risk>
+    <Recommendation>1. Disable XML external entity processing in all XML parsers
+2. Use less complex data formats (JSON) when possible
+3. Implement input validation and sanitization for XML files
+4. Update XML processing libraries to latest versions
+5. Use whitelist filtering for XML content
+6. Disable DTD processing entirely if not required
+7. Apply principle of least privilege to application user
+8. Implement Web Application Firewall (WAF) rules for XXE patterns</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Remote Code Execution via Insecure Deserialization</Name>
+    <Level>Critical</Level>
+    <Scope>Web Application - Session Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>The application stores serialized Java objects in session cookies. These cookies are not cryptographically signed, allowing attackers to modify the serialized data and include malicious payloads that execute during deserialization. The application uses vulnerable libraries with known deserialization gadget chains.</Description>
+    <Risk>Insecure deserialization leads to:
+- Remote code execution on the application server
+- Complete system compromise
+- Data theft and exfiltration
+- Malware installation
+- Lateral movement within the network
+- Privilege escalation
+- Denial of Service
+- Backdoor installation for persistent access</Risk>
+    <Recommendation>1. Avoid deserializing untrusted data
+2. Use simple data formats (JSON) instead of native serialization
+3. Implement integrity checks (HMAC) on serialized objects
+4. Use allowlisting for deserializable classes
+5. Run deserialization code in low-privilege environments
+6. Monitor deserialization activity for anomalies
+7. Update serialization libraries (disable dangerous features)
+8. Implement network segmentation to limit blast radius
+9. Use tools like Java Agent for Serialization Filtering</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Path Traversal in File Download</Name>
+    <Level>High</Level>
+    <Scope>Web Application - File Download Endpoint</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The file download functionality accepts a filename parameter without proper validation. Attackers can use directory traversal sequences (../) to access files outside the intended directory, potentially reading sensitive system files, application source code, and configuration files.</Description>
+    <Risk>Path traversal exploitation allows:
+- Reading sensitive system files (/etc/passwd, /etc/shadow, web.config)
+- Accessing application source code
+- Reading database configuration files with credentials
+- Extracting encryption keys and secrets
+- Reading log files containing sensitive information
+- Accessing backup files
+- Information disclosure for further attacks
+- Compliance violations</Risk>
+    <Recommendation>1. Never use user input directly in file system operations
+2. Implement strict input validation with whitelisting
+3. Use indirect reference maps (map user input to safe filenames)
+4. Canonicalize file paths and verify they remain in allowed directory
+5. Use framework APIs that prevent traversal (Path.Combine in .NET)
+6. Apply principle of least privilege to application file access
+7. Implement chroot jails or containerization
+8. Log and monitor file access patterns for anomalies</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Command Injection in Image Processing</Name>
+    <Level>Critical</Level>
+    <Scope>Web Application - Image Upload and Conversion</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>The image conversion feature uses ImageMagick with user-supplied filenames passed directly to shell commands without sanitization. Attackers can inject shell metacharacters (;, |, &amp;, $) in the filename parameter to execute arbitrary operating system commands on the server.</Description>
+    <Risk>Command injection leads to:
+- Complete server compromise with web server privileges
+- Remote code execution
+- Data exfiltration and database dumping
+- Installation of backdoors and web shells
+- Lateral movement to other systems
+- Denial of service
+- Cryptocurrency mining malware
+- Credential theft from the system
+- Use of server for further attacks (pivot point)</Risk>
+    <Recommendation>1. Never pass user input directly to shell commands
+2. Use language-native APIs instead of shell execution
+3. Implement strict input validation with whitelisting
+4. Escape shell metacharacters if shell execution is unavoidable
+5. Use parameterized APIs (subprocess with array arguments in Python)
+6. Apply principle of least privilege (run processes as low-privilege user)
+7. Use containerization and sandboxing
+8. Implement application whitelisting
+9. Regular security testing and code review
+10. Consider using safer alternatives to ImageMagick</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Local File Inclusion (LFI)</Name>
+    <Level>High</Level>
+    <Scope>Web Application - Template Engine</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application uses user-controlled input in file inclusion functions (PHP include(), require(), Java JSP include) without proper validation. Attackers can manipulate the file parameter to include arbitrary local files, potentially executing code or accessing sensitive data.</Description>
+    <Risk>LFI vulnerabilities enable:
+- Reading sensitive configuration files
+- Accessing source code
+- Including log files with injected PHP code
+- Session file poisoning
+- Potential code execution via log poisoning
+- Reading /proc/self/environ
+- Accessing database credentials
+- Information disclosure</Risk>
+    <Recommendation>1. Avoid dynamic file inclusion based on user input
+2. Use whitelist of allowed templates/files
+3. Implement indirect reference mapping
+4. Disable allow_url_include in PHP
+5. Use framework-level template rendering
+6. Implement strict input validation
+7. Apply least privilege file permissions
+8. Regular security code reviews</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Server-Side Template Injection (SSTI)</Name>
+    <Level>Critical</Level>
+    <Scope>Web Application - Email Template Engine</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>User input is embedded directly into server-side templates (Jinja2, Freemarker, Velocity) without sanitization. Attackers can inject template directives to execute arbitrary code on the server.</Description>
+    <Risk>SSTI leads to:
+- Remote code execution
+- Complete server compromise
+- Access to application secrets and environment variables
+- File system access
+- Database credential exposure
+- Internal network reconnaissance
+- Privilege escalation</Risk>
+    <Recommendation>1. Never embed user input directly in templates
+2. Use sandboxed template environments
+3. Implement strict input validation
+4. Use logic-less template engines (Mustache)
+5. Apply whitelist filtering
+6. Regular security assessments
+7. Monitor template execution for anomalies</Recommendation>
+    <Type>Web Application</Type>
+  </vulnerability>
+</vulnerabilities>

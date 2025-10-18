@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Linux Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Sudo Misconfiguration for Privilege Escalation</Name>
+    <Level>High</Level>
+    <Scope>Linux - Privilege Escalation</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Sudo configuration allows users to run commands as root with NOPASSWD. Wildcards in sudo rules enable command injection. Dangerous binaries (vi, less, find, nmap) allowed via sudo. User can edit /etc/sudoers via sudo visudo.</Description>
+    <Risk>Sudo misconfiguration enables:
+- Privilege escalation to root
+- Arbitrary command execution as root
+- System compromise
+- Bypassing security controls
+- Data exfiltration with root access
+- System configuration changes
+- Backdoor installation
+- Persistence mechanisms
+- Lateral movement
+- Complete host takeover</Risk>
+    <Recommendation>1. Remove NOPASSWD where not required
+2. Avoid wildcards in sudo rules
+3. Use specific command paths
+4. Restrict dangerous binaries (vim, less, find, awk, etc.)
+5. Use sudoedit instead of sudo vim
+6. Implement command logging
+7. Regular sudoers audit
+8. Use sudo -l to check permissions
+9. Implement least privilege principle
+10. Use SELinux/AppArmor with sudo
+11. Monitor sudo usage
+12. GTFOBins reference for dangerous binaries</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>SUID/SGID Binaries Misconfigured</Name>
+    <Level>High</Level>
+    <Scope>Linux - File Permissions</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Custom scripts and binaries have SUID/SGID bits set. World-writable SUID binaries. Vulnerable SUID programs (older versions of pkexec, polkit). No regular audits of SUID files.</Description>
+    <Risk>SUID misconfiguration enables:
+- Privilege escalation to root/group
+- Arbitrary code execution with elevated privileges
+- System compromise
+- Exploiting vulnerable SUID programs
+- File permission bypass
+- Data access beyond user scope
+- Persistent backdoors
+- Defense evasion
+- Lateral movement
+- Complete system takeover</Risk>
+    <Recommendation>1. Remove SUID/SGID from unnecessary files
+2. Regular audit: find / -perm -4000 -type f 2>/dev/null
+3. Monitor for new SUID files
+4. Use capabilities instead of SUID when possible
+5. Ensure SUID files not world-writable
+6. Keep SUID programs updated
+7. Implement file integrity monitoring
+8. Use nosuid mount option where appropriate
+9. Regular vulnerability scanning
+10. Document legitimate SUID files
+11. Implement SUID wrapper scripts with validation
+12. Use SELinux/AppArmor constraints</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Kernel Exploit (DirtyCOW, DirtyPipe)</Name>
+    <Level>High</Level>
+    <Scope>Linux - Kernel Vulnerability</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Linux kernel vulnerable to local privilege escalation exploits. DirtyCOW (CVE-2016-5195), DirtyPipe (CVE-2022-0847), or other kernel vulnerabilities present. Kernel not patched or running end-of-life distribution.</Description>
+    <Risk>Kernel vulnerabilities enable:
+- Local privilege escalation to root
+- Container escape
+- Complete system compromise
+- Bypassing all security controls
+- Persistent rootkit installation
+- Kernel-level backdoors
+- System-wide data access
+- Defense mechanism bypass
+- Difficulty in detection
+- Mass exploitation potential</Risk>
+    <Recommendation>1. Apply kernel security updates immediately
+2. Enable automatic security updates
+3. Use supported Linux distributions
+4. Implement kernel live patching (kpatch, ksplice)
+5. Monitor kernel vulnerability announcements
+6. Use security-focused distributions
+7. Implement defense in depth
+8. Enable kernel hardening options
+9. Use containers with user namespaces
+10. Regular vulnerability scanning
+11. Implement intrusion detection
+12. Security incident response plan</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak File and Directory Permissions</Name>
+    <Level>Medium</Level>
+    <Scope>Linux - Access Control</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Critical files have overly permissive permissions. /etc/passwd writable by others. Log files world-readable containing sensitive data. SSH private keys with 644 permissions. Configuration files with secrets readable by all users.</Description>
+    <Risk>Weak permissions expose:
+- Sensitive configuration data
+- Private keys and credentials
+- User account information
+- Application secrets
+- System configuration
+- Audit logs and forensic data
+- Privilege escalation opportunities
+- Data tampering
+- Unauthorized modifications
+- Information disclosure</Risk>
+    <Recommendation>1. Implement principle of least privilege
+2. Set appropriate file permissions (chmod)
+3. Restrict /etc/passwd to 644, /etc/shadow to 600
+4. SSH private keys should be 600
+5. Configuration files with secrets: 600 or 640
+6. Regular permission audits
+7. Use ACLs for complex requirements
+8. Implement umask properly (022 or 027)
+9. Automated compliance scanning
+10. File integrity monitoring
+11. SELinux/AppArmor policies
+12. Security baseline hardening</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Cron Job Privilege Escalation</Name>
+    <Level>High</Level>
+    <Scope>Linux - Scheduled Tasks</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Cron jobs run as root execute scripts in world-writable directories. Cron scripts use relative paths or $PATH manipulation. User-writable cron scripts executed by root. No validation of script integrity.</Description>
+    <Risk>Cron misconfiguration enables:
+- Privilege escalation to root
+- Arbitrary code execution as root
+- Scheduled backdoor execution
+- Persistence mechanisms
+- System compromise
+- Data exfiltration
+- Lateral movement
+- Bypassing monitoring
+- Timed attacks
+- Difficult attribution</Risk>
+    <Recommendation>1. Ensure cron scripts not in writable locations
+2. Use absolute paths in cron scripts
+3. Secure $PATH in cron environment
+4. Set proper script permissions (700 or 750)
+5. Validate script ownership
+6. Implement script signing/checksums
+7. Audit /etc/crontab and /etc/cron.*
+8. Use systemd timers with proper permissions
+9. Monitor cron execution
+10. Log cron job activities
+11. Regular cron audit
+12. Principle of least privilege for cron users</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Docker Socket Exposure</Name>
+    <Level>Critical</Level>
+    <Scope>Linux - Container Runtime</Scope>
+    <Protocol-Interface>Unix Socket</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Docker socket (/var/run/docker.sock) mounted in containers or accessible to non-root users. Users in docker group can manipulate containers. Socket world-accessible. No socket access controls.</Description>
+    <Risk>Docker socket access enables:
+- Container escape to host
+- Root access on host system
+- Arbitrary container creation
+- Host file system access
+- Credential theft from containers
+- Network manipulation
+- Complete infrastructure compromise
+- Bypassing container isolation
+- Privilege escalation
+- Persistent backdoors on host</Risk>
+    <Recommendation>1. Never mount docker.sock in untrusted containers
+2. Restrict docker group membership
+3. Use rootless Docker
+4. Implement socket access controls
+5. Use Docker context for remote access
+6. Monitor docker socket access
+7. Use gVisor or Kata Containers for isolation
+8. Implement least privilege
+9. Regular security audits
+10. Use socket proxies with authorization
+11. Container runtime security monitoring
+12. Kubernetes RBAC for container orchestration</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unpatched SSH Server</Name>
+    <Level>High</Level>
+    <Scope>Linux - Remote Access</Scope>
+    <Protocol-Interface>SSH/22</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>SSH server running outdated version with known vulnerabilities. Weak ciphers enabled. Root login permitted. Password authentication enabled. No fail2ban or rate limiting. SSH keys not protected.</Description>
+    <Risk>Weak SSH configuration enables:
+- Brute-force attacks
+- Exploitation of SSH vulnerabilities
+- Credential theft
+- Man-in-the-middle attacks
+- Unauthorized remote access
+- Weak cipher exploitation
+- Root account compromise
+- Lateral movement
+- Persistent access
+- Network reconnaissance</Risk>
+    <Recommendation>1. Update SSH server to latest version
+2. Disable root login (PermitRootLogin no)
+3. Use key-based authentication only
+4. Disable password authentication
+5. Use strong ciphers and MACs
+6. Implement fail2ban or similar
+7. Change default SSH port (security through obscurity)
+8. Use SSH certificates
+9. Enable two-factor authentication
+10. Restrict SSH access by IP/network
+11. Monitor SSH logs
+12. Regular security hardening audits</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>World-Writable Files in $PATH</Name>
+    <Level>High</Level>
+    <Scope>Linux - Environment Variables</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Directories in $PATH are world-writable. Users can place malicious binaries in $PATH. Current directory (.) in $PATH. Privileged users have insecure $PATH. Scripts using relative paths vulnerable to hijacking.</Description>
+    <Risk>PATH manipulation enables:
+- Privilege escalation
+- Binary hijacking
+- Arbitrary code execution
+- Trojan program installation
+- Command substitution attacks
+- Supply chain attacks
+- Persistent backdoors
+- Defense evasion
+- Credential theft
+- System compromise</Risk>
+    <Recommendation>1. Remove world-writable directories from $PATH
+2. Remove current directory (.) from $PATH
+3. Use absolute paths in scripts
+4. Secure $PATH for privileged users
+5. Set secure $PATH in /etc/profile
+6. Audit user $PATH configurations
+7. Use which/type to verify command locations
+8. Implement file integrity monitoring
+9. Regular permission audits
+10. Principle of least privilege
+11. SELinux/AppArmor constraints
+12. Security awareness training</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>NFS Share Misconfiguration</Name>
+    <Level>High</Level>
+    <Scope>Linux - Network File System</Scope>
+    <Protocol-Interface>NFS/2049</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>NFS shares exported with no_root_squash option. Shares accessible from any host (*). No authentication required. NFSv3 used without Kerberos. Sensitive directories exported.</Description>
+    <Risk>NFS misconfiguration enables:
+- Unauthorized file access
+- Root privilege escalation via no_root_squash
+- Data exfiltration
+- File modification
+- Malware injection
+- Credential theft
+- Remote code execution
+- Lateral movement
+- Data tampering
+- Privacy violations</Risk>
+    <Recommendation>1. Remove no_root_squash option
+2. Use root_squash for all exports
+3. Restrict exports to specific hosts/networks
+4. Use NFSv4 with Kerberos authentication
+5. Implement firewall rules for NFS
+6. Disable NFSv2 and NFSv3 if possible
+7. Use all_squash to map all users
+8. Regular exports audit
+9. Monitor NFS access
+10. Encrypt NFS traffic
+11. Implement access logging
+12. Security baseline for NFS</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Systemd Service Privilege Escalation</Name>
+    <Level>Medium</Level>
+    <Scope>Linux - Service Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.7</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Systemd service files in user-writable locations. Services running as root with insecure ExecStart commands. No service hardening options. Services can be modified by non-privileged users.</Description>
+    <Risk>Service misconfiguration enables:
+- Privilege escalation to root
+- Service manipulation
+- Persistent backdoors
+- Arbitrary code execution
+- System compromise
+- Bypassing security controls
+- Credential theft
+- Lateral movement
+- Defense evasion
+- Difficult detection</Risk>
+    <Recommendation>1. Place service files in /etc/systemd/system with proper permissions
+2. Use systemd hardening options (PrivateTmp, NoNewPrivileges, etc.)
+3. Run services as non-root users
+4. Implement service sandboxing
+5. Use ProtectSystem and ProtectHome
+6. Regular service file audits
+7. Implement file integrity monitoring
+8. Use DynamicUser for temporary users
+9. Monitor service modifications
+10. Principle of least privilege
+11. Security hardening with systemd-analyze security
+12. Document legitimate services</Recommendation>
+    <Type>Linux</Type>
+  </vulnerability>
+</vulnerabilities>

@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Database Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>SQL Injection via Dynamic Queries</Name>
+    <Level>Critical</Level>
+    <Scope>Database - SQL Query Construction</Scope>
+    <Protocol-Interface>Database Connection</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Application constructs SQL queries using string concatenation with user input. No prepared statements or parameterized queries used. Dynamic table/column names from user input. Stored procedures vulnerable to SQL injection through dynamic SQL.</Description>
+    <Risk>SQL injection enables:
+- Complete database compromise
+- Data exfiltration (customer data, PII, credentials)
+- Data modification and deletion
+- Authentication bypass
+- Privilege escalation
+- Remote code execution via xp_cmdshell, INTO OUTFILE
+- Operating system command execution
+- Lateral movement to other systems
+- Compliance violations (PCI DSS, GDPR, HIPAA)
+- Business disruption</Risk>
+    <Recommendation>1. Use prepared statements for all database operations
+2. Use parameterized queries (PDO, mysqli, psycopg2)
+3. Implement input validation with whitelisting
+4. Use stored procedures with parameter binding
+5. Apply principle of least privilege to database accounts
+6. Disable dangerous functions (xp_cmdshell, LOAD_FILE)
+7. Implement database activity monitoring
+8. Use ORM frameworks with query builders
+9. Regular code reviews focused on SQL injection
+10. Penetration testing and SAST/DAST tools
+11. Implement Web Application Firewall (WAF)
+12. Security training for developers</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>NoSQL Injection in MongoDB</Name>
+    <Level>High</Level>
+    <Scope>Database - NoSQL Query Construction</Scope>
+    <Protocol-Interface>MongoDB/27017</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>MongoDB queries constructed using user input without sanitization. JavaScript execution enabled. $where operator accepts user-controlled expressions. Injection via JSON parameter manipulation. Operator injection ($gt, $ne, $regex).</Description>
+    <Risk>NoSQL injection enables:
+- Authentication bypass via operator injection
+- Data exfiltration through query manipulation
+- Arbitrary JavaScript execution
+- Timing attacks for data extraction
+- Regular expression DoS (ReDoS)
+- Schema inference through error messages
+- Privilege escalation
+- Data modification
+- Business logic bypass
+- Application compromise</Risk>
+    <Recommendation>1. Sanitize user input before query construction
+2. Disable JavaScript execution (--noscripting)
+3. Avoid $where operator with user input
+4. Use parameterized queries where available
+5. Implement input validation and type checking
+6. Use MongoDB Object Document Mapper (ODM)
+7. Implement least privilege database access
+8. Enable authentication and authorization
+9. Use role-based access control
+10. Regular security assessments
+11. Monitor for suspicious queries
+12. Keep MongoDB updated with security patches</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Database Weak Authentication</Name>
+    <Level>Critical</Level>
+    <Scope>Database - Access Control</Scope>
+    <Protocol-Interface>Multiple Database Ports</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Database uses default credentials (root/root, admin/admin). Weak passwords (password, 123456). Authentication disabled or allows anonymous access. Trust-based authentication (PostgreSQL pg_hba.conf with trust). No account lockout policy.</Description>
+    <Risk>Weak database auth enables:
+- Unauthorized database access
+- Brute-force password attacks
+- Complete data compromise
+- Data exfiltration
+- Data manipulation and deletion
+- Privilege escalation
+- Lateral movement
+- Ransomware attacks
+- Compliance violations
+- Service disruption</Risk>
+    <Recommendation>1. Change all default database passwords
+2. Implement strong password policy (20+ characters)
+3. Enable authentication on all databases
+4. Use certificate-based authentication
+5. Implement account lockout policies
+6. Use database-specific authentication mechanisms
+7. Disable anonymous access
+8. Implement multi-factor authentication where supported
+9. Regular password rotation
+10. Use secrets management systems
+11. Monitor failed authentication attempts
+12. Implement IP whitelisting</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Excessive Database Privileges</Name>
+    <Level>Medium</Level>
+    <Scope>Database - Permission Management</Scope>
+    <Protocol-Interface>Database Connection</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Application database accounts have DBA or root privileges. Accounts can drop tables, create users, or execute system commands. No separation of privileges for read vs write operations. Service accounts have unnecessary permissions.</Description>
+    <Risk>Excessive privileges enable:
+- Data deletion and corruption
+- Schema modification
+- User account creation
+- Privilege escalation
+- Operating system command execution
+- Lateral movement
+- Extended attack impact
+- Difficulty in incident containment
+- Compliance violations
+- Insider threat amplification</Risk>
+    <Recommendation>1. Apply principle of least privilege
+2. Grant only necessary permissions (SELECT, INSERT, UPDATE)
+3. Separate read-only and write accounts
+4. Remove DDL permissions from application accounts
+5. Disable SUPER/DBA privileges for app accounts
+6. Use database roles and role-based access control
+7. Regular privilege audits
+8. Implement permission boundaries
+9. Remove unused accounts
+10. Monitor privileged operations
+11. Use separate accounts for different functions
+12. Document and justify all permissions</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unencrypted Database Connections</Name>
+    <Level>High</Level>
+    <Scope>Database - Network Security</Scope>
+    <Protocol-Interface>Database Ports (Cleartext)</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database connections not encrypted. Credentials and data transmitted in cleartext. SSL/TLS not configured or enforced. Certificate validation disabled. Man-in-the-middle attacks possible.</Description>
+    <Risk>Unencrypted connections expose:
+- Database credentials via network sniffing
+- Sensitive data in transit
+- Authentication token theft
+- SQL query disclosure
+- Man-in-the-middle attacks
+- Session hijacking
+- Compliance violations (PCI DSS, HIPAA)
+- Privacy breaches
+- Eavesdropping attacks
+- Data tampering</Risk>
+    <Recommendation>1. Enable SSL/TLS for database connections
+2. Enforce encrypted connections (require_secure_transport=ON)
+3. Use proper certificate validation
+4. Configure strong cipher suites
+5. Use certificate-based authentication
+6. Disable weak protocols (TLS 1.0, 1.1)
+7. Implement certificate pinning
+8. Use VPN for database access
+9. Network segmentation for database tier
+10. Monitor for unencrypted connections
+11. Regular security assessments
+12. Update database drivers for security fixes</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Missing Database Encryption at Rest</Name>
+    <Level>Medium</Level>
+    <Scope>Database - Data Protection</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database files, backups, and transaction logs not encrypted. Transparent Data Encryption (TDE) not enabled. Database files on unencrypted filesystems. Backup files stored unencrypted. Temp files and swap not encrypted.</Description>
+    <Risk>Unencrypted data at rest exposes:
+- Data theft via physical access
+- Backup file theft
+- Disk and storage compromise
+- Data in decommissioned hardware
+- Compliance violations
+- Insider threats
+- Forensic data recovery
+- Cloud storage exposure
+- Snapshot theft
+- Data center breaches</Risk>
+    <Recommendation>1. Enable Transparent Data Encryption (TDE)
+2. Encrypt database backups
+3. Use encrypted filesystems (LUKS, BitLocker)
+4. Implement column-level encryption for sensitive fields
+5. Encrypt transaction logs
+6. Secure key management (HSM, KMS)
+7. Encrypt temporary files and swap
+8. Implement backup encryption
+9. Secure decommissioning procedures
+10. Regular encryption audits
+11. Document encryption architecture
+12. Comply with data protection regulations</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Database Injection via ORM</Name>
+    <Level>High</Level>
+    <Scope>Database - Object-Relational Mapping</Scope>
+    <Protocol-Interface>Database Connection</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>ORM queries constructed using unsafe methods. Raw SQL with string concatenation. Dynamic order/where clauses from user input. HQL/JPQL injection in Hibernate. ActiveRecord find_by_sql with interpolation.</Description>
+    <Risk>ORM injection enables:
+- SQL injection through ORM layer
+- Data exfiltration
+- Authentication bypass
+- Query manipulation
+- Data modification
+- Information disclosure
+- Bypassing ORM protections
+- Privilege escalation
+- Business logic bypass
+- Application compromise</Risk>
+    <Recommendation>1. Use ORM query builders properly
+2. Avoid raw SQL when possible
+3. Parameterize all ORM queries
+4. Use ORM-specific safe methods
+5. Validate and sanitize order/where parameters
+6. Implement input validation
+7. Use allowlists for dynamic queries
+8. Regular code reviews for ORM usage
+9. Security testing focused on ORM
+10. Keep ORM frameworks updated
+11. Follow ORM security best practices
+12. Developer training on secure ORM usage</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Database Backup Storage</Name>
+    <Level>Medium</Level>
+    <Scope>Database - Backup Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database backups stored without encryption. Backups on world-readable shares or public cloud storage. No access controls on backup files. Backups not tested or monitored. Long retention without secure deletion.</Description>
+    <Risk>Insecure backups expose:
+- Complete database dump access
+- Historical data theft
+- Deleted record recovery
+- Credential harvesting
+- Schema information disclosure
+- Compliance violations
+- Data breaches via backup theft
+- Insider threats
+- Cloud misconfiguration exposure
+- Long-term data exposure</Risk>
+    <Recommendation>1. Encrypt all database backups
+2. Implement strict access controls
+3. Use secure backup storage locations
+4. Test backup restoration regularly
+5. Implement backup integrity checks
+6. Secure deletion of old backups
+7. Monitor backup access
+8. Use versioned backup encryption keys
+9. Implement backup retention policies
+10. Document backup procedures
+11. Regular backup security audits
+12. Compliance-focused backup management</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>MongoDB No Authentication Enabled</Name>
+    <Level>Critical</Level>
+    <Scope>Database - MongoDB Configuration</Scope>
+    <Protocol-Interface>MongoDB/27017</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>MongoDB instance running without authentication (--noauth). Database accessible from internet. No firewall restrictions. Authorization not configured. Allows anonymous full database access.</Description>
+    <Risk>Unauthenticated MongoDB enables:
+- Complete database access without credentials
+- Data exfiltration
+- Data deletion and ransomware
+- Database takeover
+- Administrative operations
+- User creation and privilege escalation
+- Automated scanning and exploitation
+- Cryptocurrency mining
+- Botnet recruitment
+- Mass data breaches</Risk>
+    <Recommendation>1. Enable authentication immediately
+2. Create admin user with strong password
+3. Enable authorization (--auth)
+4. Configure network binding to localhost
+5. Implement firewall rules
+6. Use role-based access control
+7. Enable audit logging
+8. Disable HTTP interface
+9. Use MongoDB Atlas for managed security
+10. Regular security assessments
+11. Monitor for unauthorized access
+12. Implement IP whitelisting</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Database Logging Sensitive Data</Name>
+    <Level>Medium</Level>
+    <Scope>Database - Audit and Logging</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>4.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database logs contain sensitive data including passwords, credit cards, and PII. General query log enabled logging all queries. Slow query log exposes sensitive data. Log files world-readable. No log redaction or masking.</Description>
+    <Risk>Excessive logging exposes:
+- Passwords in cleartext
+- Credit card numbers
+- Personal identifiable information
+- Authentication tokens
+- Business sensitive data
+- Query patterns revealing logic
+- Compliance violations
+- Privacy breaches
+- Insider threat data
+- Forensic evidence exposure</Risk>
+    <Recommendation>1. Disable general query log in production
+2. Implement log redaction for sensitive data
+3. Mask passwords and PII in logs
+4. Restrict log file permissions (600)
+5. Encrypt log files at rest
+6. Implement log retention policies
+7. Use structured logging
+8. Centralized secure log management
+9. Regular log reviews for sensitive data
+10. Compliance-focused logging
+11. Audit logging configurations
+12. Developer training on secure logging</Recommendation>
+    <Type>Database</Type>
+  </vulnerability>
+</vulnerabilities>

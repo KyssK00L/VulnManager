@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Active Directory Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Kerberoasting - Service Accounts with Weak Passwords</Name>
+    <Level>High</Level>
+    <Scope>Active Directory - Service Principal Names (SPNs)</Scope>
+    <Protocol-Interface>Kerberos/88</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Multiple service accounts with Service Principal Names (SPNs) registered use weak passwords. Any authenticated domain user can request Kerberos TGS tickets for these accounts and crack them offline. Service accounts have not been configured with managed service accounts (MSA/gMSA) and use regular user accounts with static passwords.</Description>
+    <Risk>Kerberoasting attacks enable:
+- Offline password cracking of service accounts
+- Compromise of high-privilege service accounts
+- Privilege escalation to domain admin equivalents
+- Lateral movement using compromised service credentials
+- Persistent access through service accounts
+- SQL Server and Exchange server compromise
+- Database access and data exfiltration
+- Undetected long-term access
+- Pass-the-ticket attacks
+- Golden ticket creation if KRBTGT compromised</Risk>
+    <Recommendation>1. Use Group Managed Service Accounts (gMSA) for services
+2. Configure service account passwords with 25+ characters
+3. Implement password rotation for service accounts
+4. Monitor for unusual TGS ticket requests (Event ID 4769)
+5. Use Microsoft Defender for Identity to detect Kerberoasting
+6. Limit service account privileges (principle of least privilege)
+7. Enable AES encryption for Kerberos (disable RC4)
+8. Audit SPNs regularly: Get-ADUser -Filter {ServicePrincipalName -like "*"}
+9. Implement privileged access workstations (PAWs)
+10. Use Protected Users group for sensitive accounts
+11. Regular security assessments with Kerberoasting testing
+12. Consider removing unnecessary SPNs</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>LLMNR/NBT-NS Poisoning Enabled</Name>
+    <Level>High</Level>
+    <Scope>Active Directory - Name Resolution</Scope>
+    <Protocol-Interface>LLMNR/5355, NBT-NS/137</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Link-Local Multicast Name Resolution (LLMNR) and NetBIOS Name Service (NBT-NS) are enabled on all workstations and servers. These legacy protocols broadcast name resolution requests without authentication, allowing attackers on the local network to respond to queries and capture NTLM hashes via poisoning attacks.</Description>
+    <Risk>LLMNR/NBT-NS poisoning enables:
+- NTLM hash capture via man-in-the-middle
+- NTLMv2 hash cracking offline
+- SMB relay attacks
+- Credential theft without phishing
+- Privilege escalation through captured admin credentials
+- Lateral movement using stolen credentials
+- Pass-the-hash attacks
+- Undetected credential harvesting
+- Compromise of domain accounts
+- Initial access for further exploitation</Risk>
+    <Recommendation>1. Disable LLMNR via Group Policy
+2. Disable NBT-NS on all network adapters
+3. GPO: Computer Config → Admin Templates → Network → DNS Client → Turn off multicast name resolution
+4. Disable NBT-NS: Network adapter properties → IPv4 → Advanced → WINS → Disable NetBIOS over TCP/IP
+5. Implement DNS properly to avoid fallback
+6. Monitor network for LLMNR/NBT-NS traffic
+7. Use Windows Event Forwarding to detect poisoning
+8. Deploy network access control (NAC)
+9. Network segmentation to limit broadcast domains
+10. Implement SMB signing to prevent relay attacks
+11. Use tools like Responder to test vulnerability
+12. Regular penetration testing for name resolution attacks</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>AS-REP Roasting - Pre-authentication Disabled</Name>
+    <Level>Medium</Level>
+    <Scope>Active Directory - User Accounts</Scope>
+    <Protocol-Interface>Kerberos/88</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Several user accounts have "Do not require Kerberos preauthentication" flag enabled. This misconfiguration allows attackers to request AS-REP responses for these accounts without authentication and crack the encrypted portion offline to recover passwords.</Description>
+    <Risk>AS-REP Roasting enables:
+- Offline password cracking without authentication
+- User account compromise
+- Credential theft for lateral movement
+- Privilege escalation if privileged accounts affected
+- Undetected reconnaissance
+- Account enumeration
+- Initial access without phishing
+- Bypassing multi-factor authentication
+- Long-term persistent access
+- Domain compromise chain</Risk>
+    <Recommendation>1. Remove "Do not require Kerberos preauthentication" flag
+2. Audit accounts with UF_DONT_REQUIRE_PREAUTH flag
+3. PowerShell: Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}
+4. Enforce strong password policy (25+ characters minimum)
+5. Enable account monitoring for AS-REP requests (Event ID 4768)
+6. Use Microsoft Defender for Identity detection
+7. Implement Protected Users group
+8. Regular security audits of account configurations
+9. Use BloodHound to identify attack paths
+10. Enable Kerberos pre-authentication for all accounts
+11. Monitor for accounts with this flag set
+12. Penetration testing to identify vulnerable accounts</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unconstrained Delegation Configured</Name>
+    <Level>Critical</Level>
+    <Scope>Active Directory - Kerberos Delegation</Scope>
+    <Protocol-Interface>Kerberos/88</Protocol-Interface>
+    <CVSS3.1_Score>9.0</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Multiple servers and service accounts are configured with unconstrained Kerberos delegation (TrustedForDelegation flag). When users authenticate to these systems, their TGT tickets are cached, allowing attackers who compromise these systems to impersonate any user who has authenticated, including domain administrators.</Description>
+    <Risk>Unconstrained delegation enables:
+- Domain administrator account impersonation
+- TGT ticket extraction and reuse
+- Complete domain compromise
+- Lateral movement as any user
+- Privilege escalation to Domain Admin
+- Persistent access through ticket manipulation
+- Golden ticket attacks
+- Administrative credential theft
+- Pass-the-ticket attacks
+- Full Active Directory compromise</Risk>
+    <Recommendation>1. Replace unconstrained with constrained delegation
+2. Use resource-based constrained delegation
+3. Audit systems with unconstrained delegation: Get-ADComputer -Filter {TrustedForDelegation -eq $true}
+4. Remove TrustedForDelegation flag from non-DC systems
+5. Implement Protected Users group to prevent delegation
+6. Use "Account is sensitive and cannot be delegated" for privileged accounts
+7. Monitor for ticket extraction (Mimikatz sekurlsa::tickets)
+8. Deploy Windows Defender Credential Guard
+9. Segment network to limit delegation scope
+10. Regular reviews of delegation configurations
+11. Use Microsoft Defender for Identity for detection
+12. Penetration testing for delegation abuse</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>DCSync Attack - Excessive Replication Permissions</Name>
+    <Level>High</Level>
+    <Scope>Active Directory - Directory Replication</Scope>
+    <Protocol-Interface>DRSUAPI/RPC</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Non-administrator accounts have been granted "Replicating Directory Changes" and "Replicating Directory Changes All" permissions on the domain root. These permissions allow DCSync attacks where attackers can request password hashes for any account including KRBTGT and Domain Admins without touching domain controllers.</Description>
+    <Risk>DCSync permissions enable:
+- Extraction of all password hashes including KRBTGT
+- Golden ticket creation
+- Complete domain compromise
+- Stealthy credential theft (no DC logon required)
+- Administrator password hash retrieval
+- Lateral movement with any account
+- Persistent access through golden tickets
+- Difficult detection
+- Bypassing other security controls
+- Full Active Directory compromise</Risk>
+    <Recommendation>1. Remove excessive replication permissions immediately
+2. Audit replication rights: (Get-Acl "AD:\DC=domain,DC=com").Access | Where-Object {$_.ActiveDirectoryRights -match "GenericAll|WriteDacl|WriteOwner"}
+3. Limit replication permissions to Domain Controllers only
+4. Monitor for DCSync attacks (Event ID 4662 with Properties 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2)
+5. Deploy Microsoft Defender for Identity
+6. Implement least privilege access
+7. Use Protected Users group for privileged accounts
+8. Regular permission audits with BloodHound
+9. Alert on suspicious replication requests
+10. Penetration testing for DCSync vulnerability
+11. Implement privileged access management (PAM)
+12. Network segmentation to limit replication traffic</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>AdminSDHolder ACL Abuse</Name>
+    <Level>High</Level>
+    <Scope>Active Directory - Privilege Escalation</Scope>
+    <Protocol-Interface>LDAP/389</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Unauthorized users have been added to the ACL of the AdminSDHolder container. The Security Descriptor Propagator (SDProp) process runs every 60 minutes and propagates these permissions to all protected groups (Domain Admins, Enterprise Admins, etc.), granting persistent privileged access to attackers.</Description>
+    <Risk>AdminSDHolder abuse provides:
+- Persistent administrative access
+- Privilege escalation that survives permission resets
+- Hidden backdoor mechanism
+- Difficult detection and remediation
+- Full domain compromise
+- Ability to regain admin after removal
+- Long-term persistent access
+- Stealthy privilege escalation
+- Bypass of access reviews
+- Compliance violations</Risk>
+    <Recommendation>1. Audit AdminSDHolder ACL permissions regularly
+2. Remove unauthorized principals from AdminSDHolder ACL
+3. Monitor changes to AdminSDHolder (Event ID 5136)
+4. Use PowerShell to check: (Get-Acl "AD:\CN=AdminSDHolder,CN=System,DC=domain,DC=com").Access
+5. Implement privileged access management (PAM)
+6. Use Protected Users security group
+7. Deploy Microsoft Advanced Threat Analytics (ATA) or Defender for Identity
+8. Regular reviews of protected group memberships
+9. Implement just-in-time (JIT) admin access
+10. Use tier model for administrative access
+11. Automated alerts for AdminSDHolder modifications
+12. Penetration testing focused on persistence mechanisms</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Domain Password Policy</Name>
+    <Level>Medium</Level>
+    <Scope>Active Directory - Domain Security Policy</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The domain password policy requires only 7 characters minimum with 42-day expiration. Password complexity is enabled but allows common patterns. Password history is set to 1, allowing immediate password reuse. No fine-grained password policy is configured for privileged accounts.</Description>
+    <Risk>Weak password policy leads to:
+- Easy password cracking
+- Successful brute-force attacks
+- Password spraying effectiveness
+- Credential stuffing attacks
+- Weak password selection by users
+- Compliance violations (NIST, PCI DSS, HIPAA)
+- Account compromise
+- Lateral movement with weak credentials
+- Insufficient protection for privileged accounts
+- Insider threat exploitation</Risk>
+    <Recommendation>1. Increase minimum password length to 14+ characters
+2. Implement password filter to block common passwords
+3. Configure password history to 24 passwords
+4. Increase minimum password age to prevent rapid changes
+5. Implement fine-grained password policies (PSOs)
+6. Require 25+ characters for administrative accounts
+7. Deploy Azure AD Password Protection
+8. Block known compromised passwords (Have I Been Pwned)
+9. Consider passwordless authentication (Windows Hello, FIDO2)
+10. Implement privileged access workstations (PAWs)
+11. Use Microsoft LAPS for local admin passwords
+12. Regular password audits using tools like DSInternals
+13. User education on password security</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>SYSVOL Group Policy Preference Passwords</Name>
+    <Level>High</Level>
+    <Scope>Active Directory - Group Policy Storage</Scope>
+    <Protocol-Interface>SMB/445</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>SYSVOL share contains Group Policy Preference files with cpassword attributes. GPP XML files contain passwords encrypted using a published AES key, enabling trivial decryption. Local administrator passwords and service account credentials are stored in these files accessible to all authenticated users.</Description>
+    <Risk>SYSVOL exposure reveals:
+- Local administrator passwords via GPP
+- Service account credentials
+- Application passwords
+- Sensitive configuration data
+- Group Policy settings revealing security controls
+- Network drive mappings
+- Scheduled task credentials
+- VPN and wireless credentials
+- Easy lateral movement with exposed credentials
+- Privilege escalation opportunities</Risk>
+    <Recommendation>1. Remove passwords from Group Policy Preferences
+2. Use Microsoft LAPS for local admin password management
+3. Delete existing GPP files with cpassword: findstr /S /I cpassword \\domain.com\sysvol\*.xml
+4. Implement fine-grained file permissions on SYSVOL
+5. Monitor SYSVOL access (enable auditing)
+6. Use Group Managed Service Accounts (gMSA)
+7. Regular scans for credentials in SYSVOL
+8. Remove legacy Group Policy Preferences
+9. Use PowerShell DSC or Intune for configuration management
+10. Implement credential rotation
+11. Event monitoring for SYSVOL access patterns
+12. Penetration testing for GPP password exposure</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>ZeroLogon (CVE-2020-1472) Vulnerability</Name>
+    <Level>Critical</Level>
+    <Scope>Active Directory - Domain Controller</Scope>
+    <Protocol-Interface>Netlogon/RPC</Protocol-Interface>
+    <CVSS3.1_Score>10.0</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Domain controllers are vulnerable to ZeroLogon (CVE-2020-1472) due to unpatched systems. This vulnerability in the Netlogon protocol allows attackers to establish a vulnerable Netlogon secure channel with a domain controller and change the domain controller's machine account password to a known value.</Description>
+    <Risk>ZeroLogon enables:
+- Complete domain controller compromise
+- Domain Admin credential theft
+- DCSync attacks for all password hashes
+- Golden ticket creation
+- Complete Active Directory takeover
+- Lateral movement throughout domain
+- Persistent backdoors
+- Data exfiltration
+- Ransomware deployment
+- Critical business disruption</Risk>
+    <Recommendation>1. Apply Microsoft security updates immediately (KB4571694 and later)
+2. Enforce secure RPC for Netlogon (Set registry key to 2)
+3. Monitor for ZeroLogon exploitation attempts
+4. Deploy Windows Defender Advanced Threat Protection
+5. Implement network segmentation to protect DCs
+6. Enable enhanced logging (Event ID 5827, 5828, 5829, 5830)
+7. Regular vulnerability scanning of domain controllers
+8. Implement domain controller isolation
+9. Use privileged access workstations (PAWs) for DC management
+10. Regular security assessments
+11. Backup domain controllers and AD database
+12. Incident response plan for DC compromise</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Print Spooler Enabled on Domain Controllers (PrintNightmare)</Name>
+    <Level>Critical</Level>
+    <Scope>Active Directory - Print Spooler Service</Scope>
+    <Protocol-Interface>RPC/TCP 445</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>The Print Spooler service is running on domain controllers despite not being required. This service is vulnerable to PrintNightmare (CVE-2021-34527) and other exploits enabling remote code execution with SYSTEM privileges. Point and Print configuration allows non-admin driver installation.</Description>
+    <Risk>Print Spooler vulnerabilities enable:
+- Remote code execution as SYSTEM on DC
+- Domain controller complete compromise
+- Domain Admin credential theft
+- DCSync attacks
+- Golden ticket creation
+- Full Active Directory takeover
+- Persistent backdoor installation
+- Ransomware deployment
+- Critical infrastructure compromise
+- Active exploitation in the wild</Risk>
+    <Recommendation>1. Disable Print Spooler on domain controllers immediately
+2. PowerShell: Stop-Service -Name Spooler -Force; Set-Service -Name Spooler -StartupType Disabled
+3. Apply Microsoft security updates
+4. Group Policy: Disable Point and Print Restrictions
+5. Block RPC/SMB to DCs from untrusted networks
+6. Monitor for Print Spooler exploitation attempts
+7. Implement domain controller network isolation
+8. Use Windows Defender for exploit detection
+9. Deploy attack surface reduction rules
+10. Regular vulnerability scanning
+11. Penetration testing for PrintNightmare
+12. Incident response plan for DC compromise</Recommendation>
+    <Type>Active Directory</Type>
+  </vulnerability>
+</vulnerabilities>

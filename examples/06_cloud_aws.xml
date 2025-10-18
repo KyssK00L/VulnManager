@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cloud AWS Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Publicly Accessible S3 Bucket</Name>
+    <Level>Critical</Level>
+    <Scope>Cloud AWS - S3 Storage</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>S3 buckets are configured with public read/write access through bucket policies or ACLs. Anonymous users can list, download, upload, or delete objects. Block Public Access settings are disabled at bucket and account level.</Description>
+    <Risk>Public S3 buckets expose:
+- Sensitive data to unauthorized access
+- Customer PII and confidential documents
+- Database backups and credentials
+- Application source code
+- API keys and certificates
+- Financial and healthcare records
+- Compliance violations (GDPR, HIPAA, PCI DSS)
+- Data modification or deletion by attackers
+- Ransomware via object encryption
+- Cryptocurrency mining abuse</Risk>
+    <Recommendation>1. Enable S3 Block Public Access at account and bucket level
+2. Remove public ACLs and bucket policies
+3. Use IAM policies for access control
+4. Implement bucket encryption (SSE-S3, SSE-KMS)
+5. Enable S3 versioning for data protection
+6. Configure S3 access logging
+7. Use AWS Config rules to detect public buckets
+8. Implement least privilege access
+9. Regular audits with AWS Trusted Advisor
+10. Use VPC endpoints for private access
+11. Enable MFA Delete for critical buckets
+12. Monitor CloudTrail for unauthorized access</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Overly Permissive IAM Policies</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - Identity and Access Management</Scope>
+    <Protocol-Interface>AWS API</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>IAM users and roles have policies with wildcard permissions (Action: *, Resource: *). Service accounts have AdministratorAccess policy attached. No conditions or resource restrictions are implemented. Users can escalate privileges through IAM policy modifications.</Description>
+    <Risk>Excessive IAM permissions enable:
+- Privilege escalation to admin level
+- Unauthorized resource access across all services
+- Data exfiltration from any AWS service
+- Resource deletion and service disruption
+- Creation of backdoor accounts
+- Compliance violations
+- Lateral movement across AWS accounts
+- Cost abuse through resource creation
+- Difficulty in incident response
+- Insider threat amplification</Risk>
+    <Recommendation>1. Apply principle of least privilege
+2. Use managed policies over inline policies
+3. Implement IAM Access Analyzer
+4. Remove wildcard permissions (Action: *, Resource: *)
+5. Use IAM conditions for additional restrictions
+6. Implement permission boundaries
+7. Regular IAM policy reviews and cleanup
+8. Enable IAM credential reports
+9. Implement service control policies (SCPs) in Organizations
+10. Use IAM roles instead of long-term credentials
+11. Monitor CloudTrail for privilege escalation attempts
+12. Implement just-in-time (JIT) access</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Exposed EC2 Instance Metadata Service (IMDSv1)</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - EC2 Compute</Scope>
+    <Protocol-Interface>HTTP/169.254.169.254</Protocol-Interface>
+    <CVSS3.1_Score>8.6</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>EC2 instances use IMDSv1 which allows unauthenticated access to instance metadata via SSRF attacks. Attackers can retrieve IAM role credentials from http://169.254.169.254/latest/meta-data/iam/security-credentials/. No hop limit or authentication token required.</Description>
+    <Risk>IMDS exposure enables:
+- IAM role credential theft via SSRF
+- Privilege escalation with stolen credentials
+- Lateral movement to other AWS services
+- Access to sensitive instance metadata
+- User data script exposure
+- Network configuration disclosure
+- CloudFormation stack information leakage
+- Undetected long-term access
+- Compliance violations
+- Complete AWS account compromise</Risk>
+    <Recommendation>1. Migrate to IMDSv2 (token-required)
+2. Set HttpTokens to required in launch templates
+3. Configure hop limit to 1
+4. Disable IMDS if not needed
+5. Implement network-level protections
+6. Monitor CloudTrail for metadata service access
+7. Use AWS Config to enforce IMDSv2
+8. Educate developers about SSRF risks
+9. Implement application-level SSRF protections
+10. Use EC2 Instance Connect for SSH access
+11. Regular security assessments
+12. AWS CLI: aws ec2 modify-instance-metadata-options</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>RDS Database Publicly Accessible</Name>
+    <Level>Critical</Level>
+    <Scope>Cloud AWS - RDS Database</Scope>
+    <Protocol-Interface>MySQL/3306, PostgreSQL/5432</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>RDS instances have PubliclyAccessible set to true with security groups allowing 0.0.0.0/0 inbound traffic. Databases are accessible from the internet without VPN or bastion hosts. Weak or default passwords are in use.</Description>
+    <Risk>Public RDS exposure leads to:
+- Direct database access from internet
+- Brute-force attacks on credentials
+- Exploitation of database vulnerabilities
+- Data exfiltration and breaches
+- Ransomware attacks on database
+- Compliance violations (PCI DSS, HIPAA)
+- Unauthorized data modification
+- Service disruption
+- Cryptocurrency mining
+- Backdoor installation</Risk>
+    <Recommendation>1. Set PubliclyAccessible to false
+2. Place RDS in private subnets
+3. Use VPN or AWS Direct Connect for access
+4. Implement bastion hosts or AWS Systems Manager Session Manager
+5. Restrict security group rules to specific IPs
+6. Enable encryption at rest (KMS)
+7. Enable encryption in transit (SSL/TLS)
+8. Implement IAM database authentication
+9. Enable RDS monitoring and logging
+10. Use AWS Secrets Manager for credentials
+11. Regular security group audits
+12. Enable automated backups and snapshots</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unencrypted EBS Volumes and Snapshots</Name>
+    <Level>Medium</Level>
+    <Scope>Cloud AWS - EBS Storage</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>EBS volumes and snapshots are not encrypted. Public snapshots contain sensitive data. No KMS encryption enabled for volumes. Snapshot permissions allow public or cross-account access.</Description>
+    <Risk>Unencrypted EBS exposes:
+- Data at rest without protection
+- Sensitive information in snapshots
+- Compliance violations
+- Data theft if volumes/snapshots copied
+- Insider threats
+- Forensic data exposure
+- Database and application data leakage
+- Customer PII and credentials
+- Intellectual property theft
+- Regulatory penalties</Risk>
+    <Recommendation>1. Enable EBS encryption by default
+2. Use AWS KMS for encryption keys
+3. Encrypt existing unencrypted volumes (snapshot and restore)
+4. Remove public snapshot permissions
+5. Implement snapshot lifecycle policies
+6. Use AWS Config rules to detect unencrypted volumes
+7. Enable CloudTrail logging for snapshot operations
+8. Implement least privilege for snapshot sharing
+9. Regular audits of snapshot permissions
+10. Use AWS Backup for centralized backup management
+11. Tag volumes for encryption compliance
+12. Document encryption key management procedures</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Lambda Function with Excessive Permissions</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - Lambda Serverless</Scope>
+    <Protocol-Interface>AWS API</Protocol-Interface>
+    <CVSS3.1_Score>7.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L</CVSS3.1_VectorString>
+    <Description>Lambda function execution roles have AdministratorAccess or overly broad permissions. Functions can access resources they don't need. No VPC configuration for functions accessing internal resources. Environment variables contain plaintext secrets.</Description>
+    <Risk>Excessive Lambda permissions enable:
+- Code injection leading to privilege escalation
+- Unauthorized access to AWS services
+- Data exfiltration from accessible resources
+- Resource manipulation and deletion
+- Lateral movement in AWS environment
+- Cost abuse through resource creation
+- Compliance violations
+- Supply chain attacks via dependencies
+- Difficult security posture assessment
+- Insider threats amplification</Risk>
+    <Recommendation>1. Apply least privilege to Lambda execution roles
+2. Use separate roles per function
+3. Remove wildcard permissions
+4. Place functions in VPC when accessing internal resources
+5. Use AWS Secrets Manager or Parameter Store for secrets
+6. Enable function-level encryption
+7. Implement Lambda function URL authentication
+8. Enable CloudWatch Logs encryption
+9. Use Lambda layers for shared code
+10. Implement AWS WAF for function URLs
+11. Regular code reviews and dependency scanning
+12. Monitor CloudTrail for unusual Lambda activity</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Security Group Allows 0.0.0.0/0 on Critical Ports</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - VPC Security Groups</Scope>
+    <Protocol-Interface>SSH/22, RDP/3389, Database Ports</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Security groups have inbound rules allowing 0.0.0.0/0 access on SSH (22), RDP (3389), and database ports. Management interfaces are exposed to the internet. No Network ACLs for additional protection.</Description>
+    <Risk>Open security groups enable:
+- Brute-force attacks on SSH/RDP
+- Exploitation of service vulnerabilities
+- Unauthorized access to instances
+- Data breaches via exposed databases
+- Ransomware deployment
+- Cryptocurrency mining
+- Botnet recruitment
+- DDoS attack participation
+- Compliance violations
+- Lateral movement within VPC</Risk>
+    <Recommendation>1. Remove 0.0.0.0/0 rules for management ports
+2. Use specific IP ranges or security groups
+3. Implement bastion hosts for SSH/RDP
+4. Use AWS Systems Manager Session Manager
+5. Enable VPC Flow Logs
+6. Implement Network ACLs for defense in depth
+7. Use AWS Config rules to detect open security groups
+8. Regular security group audits
+9. Tag security groups for tracking
+10. Implement change management for security groups
+11. Use AWS Security Hub for compliance checks
+12. Monitor VPC Flow Logs for unauthorized access</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>CloudTrail Logging Disabled</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - Audit and Compliance</Scope>
+    <Protocol-Interface>AWS API</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N</CVSS3.1_VectorString>
+    <Description>CloudTrail is not enabled or logs are not being collected. Multi-region trail is not configured. Log file validation is disabled. S3 buckets storing logs are not protected. No CloudWatch Logs integration for real-time monitoring.</Description>
+    <Risk>Missing CloudTrail logs prevent:
+- Detection of unauthorized API calls
+- Incident response and forensics
+- Compliance with regulatory requirements
+- Identification of security breaches
+- Root cause analysis
+- User activity auditing
+- Resource change tracking
+- Security posture assessment
+- Attribution of malicious activities
+- Meeting audit requirements</Risk>
+    <Recommendation>1. Enable CloudTrail in all regions
+2. Create organization trail for all accounts
+3. Enable log file validation
+4. Store logs in S3 with encryption
+5. Enable CloudWatch Logs integration
+6. Implement log retention policies
+7. Protect CloudTrail S3 bucket with strict policies
+8. Enable MFA Delete on log bucket
+9. Use CloudTrail Insights for anomaly detection
+10. Integrate with SIEM for centralized monitoring
+11. Regular review of CloudTrail events
+12. Alert on CloudTrail configuration changes</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Root Account Without MFA</Name>
+    <Level>Critical</Level>
+    <Scope>Cloud AWS - Account Security</Scope>
+    <Protocol-Interface>AWS Console/API</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>AWS root account does not have MFA enabled. Root account is used for daily operations. Access keys exist for root account. Password policy is weak. No alerts configured for root account usage.</Description>
+    <Risk>Unprotected root account enables:
+- Complete AWS account takeover
+- Unrestricted access to all resources
+- Billing and account setting modifications
+- Service disruption across all regions
+- Data breaches affecting all services
+- Deletion of entire AWS organization
+- Compliance violations
+- Financial fraud and cost abuse
+- Difficulty in recovery
+- Permanent account damage</Risk>
+    <Recommendation>1. Enable MFA on root account immediately (hardware token preferred)
+2. Delete root account access keys
+3. Use root account only for specific tasks requiring it
+4. Create IAM users for daily operations
+5. Implement strong password policy
+6. Enable CloudTrail monitoring for root usage
+7. Set up CloudWatch alarms for root account activity
+8. Document root account access procedures
+9. Store root credentials in secure vault
+10. Regular root account security reviews
+11. Implement AWS Organizations for multi-account strategy
+12. Use IAM Identity Center for federated access</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Secrets in EC2 User Data and Environment Variables</Name>
+    <Level>High</Level>
+    <Scope>Cloud AWS - EC2 Instance Configuration</Scope>
+    <Protocol-Interface>HTTP/169.254.169.254</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Database passwords, API keys, and credentials are stored in EC2 user data scripts or environment variables. Secrets are visible via instance metadata service. No encryption or secrets management solution in use. CloudFormation templates contain hardcoded credentials.</Description>
+    <Risk>Exposed secrets lead to:
+- Credential theft via SSRF or IMDS access
+- Database and API compromise
+- Lateral movement using stolen credentials
+- Long-term undetected access
+- Compliance violations
+- Third-party service abuse
+- Data breaches
+- Difficulty rotating credentials
+- Secrets in version control
+- CloudFormation template exposure</Risk>
+    <Recommendation>1. Use AWS Secrets Manager for credential storage
+2. Use AWS Systems Manager Parameter Store
+3. Implement IAM roles for EC2 instead of credentials
+4. Remove secrets from user data and environment variables
+5. Encrypt sensitive data with KMS
+6. Use AWS Secrets Manager rotation
+7. Scan CloudFormation templates for secrets
+8. Implement secret detection in CI/CD pipeline
+9. Use temporary credentials where possible
+10. Regular credential rotation
+11. Audit existing instances for embedded secrets
+12. Educate developers on secrets management best practices</Recommendation>
+    <Type>AWS</Type>
+  </vulnerability>
+</vulnerabilities>

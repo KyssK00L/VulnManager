@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Windows Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>UAC Bypass via DLL Hijacking</Name>
+    <Level>High</Level>
+    <Scope>Windows - User Account Control</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Windows application vulnerable to DLL hijacking allowing UAC bypass. Trusted executables load DLLs from user-writable directories. Missing digital signatures on DLLs. DLL search order exploitation. AutoElevate executables vulnerable.</Description>
+    <Risk>UAC bypass enables:
+- Privilege escalation to Administrator
+- Bypassing security prompts
+- Malware installation without user consent
+- System-wide persistence
+- Security control bypass
+- Credential theft with elevated privileges
+- Rootkit installation
+- Antivirus evasion
+- Lateral movement
+- Complete system compromise</Risk>
+    <Recommendation>1. Enable DLL Safe Search Mode
+2. Use fully qualified paths for DLL loading
+3. Implement digital signature verification
+4. Use SetDllDirectory to restrict search paths
+5. Enable CWDIllegalInDLLSearch registry key
+6. Remove . from PATH
+7. Implement application whitelisting
+8. Regular vulnerability scanning
+9. Monitor for suspicious DLL loads
+10. Keep Windows updated
+11. Use Windows Defender Application Control
+12. Endpoint detection and response (EDR)</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>AlwaysInstallElevated Registry Misconfiguration</Name>
+    <Level>High</Level>
+    <Scope>Windows - Windows Installer</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>AlwaysInstallElevated policy enabled in both HKLM and HKCU registry. Any user can install MSI packages with SYSTEM privileges. No restrictions on MSI installation. Allows privilege escalation via malicious MSI packages.</Description>
+    <Risk>AlwaysInstallElevated enables:
+- Privilege escalation to SYSTEM
+- Arbitrary code execution with highest privileges
+- Malware installation
+- Persistent backdoors
+- System-wide compromise
+- Bypassing application whitelisting
+- Defense evasion
+- Credential dumping with SYSTEM
+- Lateral movement
+- Complete domain compromise</Risk>
+    <Recommendation>1. Disable AlwaysInstallElevated policy
+2. Remove registry keys:
+   HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer
+   HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer
+3. Implement application whitelisting
+4. Use Group Policy to control MSI installation
+5. Monitor registry modifications
+6. Regular security audits
+7. Implement least privilege
+8. Use Windows Defender Application Control
+9. Endpoint detection and response
+10. Security baseline hardening
+11. User awareness training
+12. Incident response procedures</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Unquoted Service Path</Name>
+    <Level>High</Level>
+    <Scope>Windows - Service Configuration</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Windows services configured with unquoted paths containing spaces. Service paths like C:\Program Files\App\service.exe without quotes. Allows DLL/executable hijacking via path interpretation. User can write to parent directories.</Description>
+    <Risk>Unquoted paths enable:
+- Privilege escalation via service hijacking
+- Arbitrary code execution as SYSTEM
+- Persistent backdoor installation
+- Service manipulation
+- Malware execution with high privileges
+- Bypassing security controls
+- Credential theft
+- Lateral movement
+- Defense evasion
+- System compromise</Risk>
+    <Recommendation>1. Quote all service paths containing spaces
+2. Use sc qc to identify unquoted paths
+3. PowerShell: Get-WmiObject win32_service | Where-Object {$_.PathName -notmatch '\"'}
+4. Modify services with sc config
+5. Restrict write permissions on service directories
+6. Implement file integrity monitoring
+7. Regular service configuration audits
+8. Use Group Policy for service hardening
+9. Monitor service modifications
+10. Principle of least privilege
+11. Application whitelisting
+12. Endpoint protection</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Service Permissions</Name>
+    <Level>High</Level>
+    <Scope>Windows - Service Security</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Windows services have weak DACL permissions allowing modification by low-privileged users. Services can be stopped, started, or reconfigured by non-administrators. SERVICE_ALL_ACCESS granted to Users group.</Description>
+    <Risk>Weak service permissions enable:
+- Service configuration modification
+- Service binary path changes
+- Privilege escalation to SYSTEM
+- Arbitrary code execution
+- Denial of service via service stop
+- Persistent backdoors
+- Credential theft
+- Lateral movement
+- Defense bypass
+- System takeover</Risk>
+    <Recommendation>1. Audit service permissions with AccessChk or PowerShell
+2. Remove excessive permissions from Users group
+3. Grant only necessary service permissions
+4. Use sc sdshow/sdset for permission management
+5. Implement service hardening
+6. Regular permission audits
+7. Monitor service modifications
+8. Use Group Policy for service configuration
+9. Principle of least privilege
+10. File integrity monitoring
+11. Windows Defender Application Control
+12. Security baseline compliance</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>LSASS Memory Dumping (Mimikatz)</Name>
+    <Level>High</Level>
+    <Scope>Windows - Credential Access</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>8.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>LSASS process memory can be dumped by local administrators. Credential Guard not enabled. Protected Process Light (PPL) not configured. Plaintext passwords, NTLM hashes, and Kerberos tickets extractable via Mimikatz or similar tools.</Description>
+    <Risk>LSASS dumping enables:
+- Plaintext password extraction
+- NTLM hash theft
+- Kerberos ticket extraction
+- Pass-the-hash attacks
+- Pass-the-ticket attacks
+- Golden/Silver ticket creation
+- Lateral movement
+- Domain compromise
+- Credential replay
+- Privilege escalation</Risk>
+    <Recommendation>1. Enable Credential Guard (virtualization-based security)
+2. Enable LSA Protection (PPL)
+3. Disable WDigest (plaintext password caching)
+4. Enable UEFI and Secure Boot
+5. Use Restricted Admin mode for RDP
+6. Implement Protected Users security group
+7. Monitor for LSASS access (Sysmon Event ID 10)
+8. Disable credential caching where possible
+9. Regular credential rotation
+10. Network segmentation
+11. Privileged access workstations (PAWs)
+12. Microsoft Defender for Endpoint</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>SMB Signing Not Required</Name>
+    <Level>Medium</Level>
+    <Scope>Windows - Network Protocol</Scope>
+    <Protocol-Interface>SMB/445</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>SMB signing not enforced on clients or servers. Allows man-in-the-middle attacks and SMB relay attacks. NTLM authentication without signing enables credential relay. No protection against session hijacking.</Description>
+    <Risk>Missing SMB signing enables:
+- NTLM relay attacks
+- Man-in-the-middle attacks
+- Credential theft via relay
+- SMB session hijacking
+- Unauthorized resource access
+- Lateral movement
+- Domain compromise
+- Pass-the-hash facilitation
+- Network eavesdropping
+- Data interception</Risk>
+    <Recommendation>1. Enable SMB signing on all systems
+2. Group Policy: Computer Config → Windows Settings → Security Settings → Local Policies → Security Options
+   - Microsoft network client: Digitally sign communications (always)
+   - Microsoft network server: Digitally sign communications (always)
+3. Disable SMBv1 completely
+4. Enable SMB encryption (SMB 3.0+)
+5. Monitor SMB traffic for anomalies
+6. Implement network segmentation
+7. Use Kerberos instead of NTLM where possible
+8. Regular security audits
+9. Penetration testing for SMB relay
+10. Implement Extended Protection for Authentication
+11. Network access control
+12. Intrusion detection systems</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Windows Defender Disabled</Name>
+    <Level>High</Level>
+    <Scope>Windows - Antivirus Protection</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Windows Defender disabled via Group Policy or registry. Real-time protection turned off. Cloud-delivered protection disabled. Tamper Protection not enabled. No alternative antivirus solution deployed.</Description>
+    <Risk>Disabled antivirus enables:
+- Undetected malware execution
+- Ransomware infections
+- Trojan and backdoor installation
+- Cryptominers and botnets
+- Fileless malware attacks
+- Credential stealers
+- Rootkit installation
+- Data exfiltration tools
+- Lateral movement tools
+- Living-off-the-land attacks</Risk>
+    <Recommendation>1. Enable Windows Defender/Antivirus
+2. Enable Real-time Protection
+3. Enable Cloud-delivered Protection
+4. Enable Tamper Protection
+5. Enable Controlled Folder Access
+6. Configure Attack Surface Reduction rules
+7. Enable Potentially Unwanted Application (PUA) protection
+8. Regular definition updates
+9. Schedule regular scans
+10. Monitor antivirus status
+11. Use Windows Defender for Endpoint
+12. Security baseline compliance</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Registry Permissions</Name>
+    <Level>Medium</Level>
+    <Scope>Windows - Registry Security</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.7</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Registry keys with weak permissions allowing modification by non-administrators. Service configuration keys writable. Run keys modifiable by users. AutoRun registry keys exploitable.</Description>
+    <Risk>Weak registry permissions enable:
+- Service manipulation
+- Persistence via Run keys
+- Privilege escalation
+- DLL hijacking configuration
+- Startup program injection
+- UAC bypass configuration
+- Security control bypass
+- Credential theft
+- Malware persistence
+- System compromise</Risk>
+    <Recommendation>1. Audit registry permissions with RegPermChecker or PowerShell
+2. Restrict write access to system registry keys
+3. Monitor critical registry key modifications
+4. Implement registry change auditing
+5. Use Group Policy to prevent registry modifications
+6. Regular permission audits
+7. File integrity monitoring for registry
+8. Principle of least privilege
+9. Application whitelisting
+10. Security baseline hardening
+11. Endpoint detection and response
+12. Backup critical registry keys</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Pass-the-Hash Attack Vector</Name>
+    <Level>High</Level>
+    <Scope>Windows - Authentication</Scope>
+    <Protocol-Interface>Multiple</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>NTLM authentication enabled without mitigations. Local Administrator accounts use same password across multiple systems. No restrictions on NTLM usage. NTLM hashes cached and reusable for authentication.</Description>
+    <Risk>Pass-the-hash enables:
+- Lateral movement using stolen hashes
+- Authentication without password knowledge
+- Privilege escalation across systems
+- Domain compromise
+- Credential reuse attacks
+- Network-wide propagation
+- Persistent access
+- Evasion of password changes
+- Administrator account abuse
+- Mass system compromise</Risk>
+    <Recommendation>1. Disable NTLM and use Kerberos exclusively
+2. Implement LAPS for unique local admin passwords
+3. Use Credential Guard
+4. Implement Protected Users security group
+5. Enable Restricted Admin mode
+6. Network segmentation (admin tier model)
+7. Disable LM and NTLMv1
+8. Monitor for pass-the-hash attacks
+9. Implement just-in-time admin access
+10. Privileged access workstations (PAWs)
+11. Microsoft Defender for Identity
+12. Regular credential rotation</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Windows Firewall Disabled</Name>
+    <Level>Medium</Level>
+    <Scope>Windows - Network Protection</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>5.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Windows Firewall disabled on domain, private, or public profiles. No inbound connection filtering. All ports accessible. No application filtering. Firewall rules not configured.</Description>
+    <Risk>Disabled firewall enables:
+- Unrestricted network access to services
+- Malware communication
+- Remote exploitation
+- Lateral movement
+- Command and control channels
+- Data exfiltration
+- Network reconnaissance
+- Worm propagation
+- Increased attack surface
+- Compliance violations</Risk>
+    <Recommendation>1. Enable Windows Firewall on all profiles
+2. Configure inbound rules to block by default
+3. Allow only necessary services
+4. Use Group Policy for firewall management
+5. Enable firewall logging
+6. Monitor firewall status
+7. Implement zone-based filtering
+8. Use Windows Defender Firewall with Advanced Security
+9. Regular firewall rule audits
+10. Network segmentation
+11. Intrusion detection integration
+12. Security baseline compliance</Recommendation>
+    <Type>Windows</Type>
+  </vulnerability>
+</vulnerabilities>
