@@ -8,9 +8,7 @@ import {
   Shield,
   Key,
   LogOut,
-  Search,
-  Plus,
-  Calculator,
+  Package,
 } from 'lucide-react'
 
 export default function Layout({ children }) {
@@ -20,8 +18,10 @@ export default function Layout({ children }) {
 
   const navigation = [
     { name: 'Vulnerabilities', href: '/', icon: Shield },
-    { name: 'CVSS Calculator', href: '/cvss', icon: Calculator },
-    ...(isAdmin ? [{ name: 'API Tokens', href: '/tokens', icon: Key }] : []),
+    ...(isAdmin ? [
+      { name: 'Types Manager', href: '/types', icon: Package },
+      { name: 'API Tokens', href: '/tokens', icon: Key },
+    ] : []),
   ]
 
   return (

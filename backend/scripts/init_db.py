@@ -20,7 +20,7 @@ async def create_admin_user():
     async with AsyncSessionLocal() as session:
         # Check if admin exists
         result = await session.execute(
-            select(User).where(User.email == "admin@vulnmanager.local")
+            select(User).where(User.username == "admin")
         )
         existing = result.scalar_one_or_none()
 
@@ -30,6 +30,7 @@ async def create_admin_user():
 
         # Create admin
         admin = User(
+            username="admin",
             email="admin@vulnmanager.local",
             full_name="Admin User",
             password_hash=hash_password("admin123"),  # Change this password!
@@ -41,7 +42,7 @@ async def create_admin_user():
         await session.commit()
 
         print("✓ Admin user created:")
-        print(f"  Email: admin@vulnmanager.local")
+        print(f"  Username: admin")
         print(f"  Password: admin123")
         print(f"  Role: {UserRole.ADMIN.value}")
         print("\n⚠️  IMPORTANT: Change the admin password after first login!")

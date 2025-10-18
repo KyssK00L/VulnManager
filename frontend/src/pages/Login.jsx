@@ -4,7 +4,7 @@ import { Shield, AlertCircle } from 'lucide-react'
 
 export default function Login() {
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -15,7 +15,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      await login(email, password)
+      await login(username, password)
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed. Please try again.')
     } finally {
@@ -46,18 +46,18 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-                Email
+              <label htmlFor="username" className="mb-1 block text-sm font-medium text-gray-700">
+                Username
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="input"
-                placeholder="admin@vulnmanager.local"
+                placeholder="admin"
                 required
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
 
@@ -87,7 +87,7 @@ export default function Login() {
           </form>
 
           <div className="mt-6 text-center text-xs text-gray-500">
-            Default credentials: admin@vulnmanager.local / admin123
+            Default credentials: admin / admin123
           </div>
         </div>
       </div>

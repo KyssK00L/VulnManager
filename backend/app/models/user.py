@@ -25,10 +25,15 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False, default=UserRole.VIEWER)
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="userrole", values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=UserRole.VIEWER
+    )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -45,7 +50,7 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<User {self.email} ({self.role.value})>"
+        return f"<User {self.username} ({self.role.value})>"
 
     @property
     def is_admin(self) -> bool:

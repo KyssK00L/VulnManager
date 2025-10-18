@@ -38,8 +38,8 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const login = async (email, password) => {
-    const response = await authApi.login(email, password)
+  const login = async (username, password) => {
+    const response = await authApi.login(username, password)
     setUser(response.data.user)
     navigate('/')
   }

@@ -109,7 +109,7 @@ quickstart: ## Installation complète (⚡ Quick Start)
 	@echo "🎉 Installation terminée!"
 	@echo ""
 	@echo "📝 Credentials par défaut:"
-	@echo "   Email: admin@vulnmanager.local"
+	@echo "   Username: admin"
 	@echo "   Password: admin123"
 	@echo ""
 	@echo "🌐 URLs:"

@@ -500,9 +500,14 @@ async def import_vulnerabilities_xml(
                     if xml_id:
                         create_kwargs["id"] = xml_id
 
+                    # Ensure vuln_type is the enum instance (not string)
+                    type_value = vuln_data["type"]
+                    if isinstance(type_value, str):
+                        type_value = VulnerabilityType(type_value)
+
                     vuln = Vulnerability(
                         **create_kwargs,
-                        vuln_type=vuln_data["type"],
+                        vuln_type=type_value,
                         tag_order=vuln_data.get("tag_order"),
                         created_by=user.id,
                         updated_by=user.id,

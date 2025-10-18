@@ -1,19 +1,26 @@
 import { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { vulnsApi } from '../lib/api'
 import { Search, Plus, Filter, Download, Upload } from 'lucide-react'
 import VulnerabilityCard from '../components/VulnerabilityCard'
 import VulnerabilityFilters from '../components/VulnerabilityFilters'
+import VulnerabilityFormModal from '../components/VulnerabilityFormModal'
 import { notify } from '../lib/notifications'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Dashboard() {
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({})
   const [showFilters, setShowFilters] = useState(false)
   const [page, setPage] = useState(1)
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false)
+  const [selectedVulnerability, setSelectedVulnerability] = useState(null)
   const perPage = 12
   const queryClient = useQueryClient()
+
+  const canEdit = user?.role === 'editor' || user?.role === 'admin'
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['vulnerabilities', searchQuery, filters, page, perPage],
@@ -78,6 +85,43 @@ export default function Dashboard() {
     setPage(1)
   }
 
+  const handleCreateNew = () => {
+    setSelectedVulnerability(null)
+    setIsFormModalOpen(true)
+  }
+
+  const handleEdit = (vulnerability) => {
+    setSelectedVulnerability(vulnerability)
+    setIsFormModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsFormModalOpen(false)
+    setSelectedVulnerability(null)
+  }
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => vulnsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })
+      notify('Vulnerability deleted successfully', 'success')
+    },
+    onError: (error) => {
+      const message = error.response?.data?.detail || error.message
+      notify(`Failed to delete vulnerability: ${message}`, 'error')
+    },
+  })
+
+  const handleDelete = (vulnerability) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${vulnerability.name}"? This action cannot be undone.`,
+      )
+    ) {
+      deleteMutation.mutate(vulnerability.id)
+    }
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
@@ -101,10 +145,12 @@ export default function Dashboard() {
                   <Download className="h-5 w-5" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
-                <button className="btn btn-primary">
-                  <Plus className="h-5 w-5" />
-                  <span className="hidden sm:inline">New</span>
-                </button>
+                {canEdit && (
+                  <button onClick={handleCreateNew} className="btn btn-primary">
+                    <Plus className="h-5 w-5" />
+                    <span className="hidden sm:inline">New</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -161,7 +207,12 @@ export default function Dashboard() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {vulnerabilities?.map((vuln) => (
-                  <VulnerabilityCard key={vuln.id} vulnerability={vuln} />
+                  <VulnerabilityCard
+                    key={vuln.id}
+                    vulnerability={vuln}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </div>
               {totalPages > 1 && (
@@ -189,6 +240,13 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Form Modal */}
+      <VulnerabilityFormModal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseModal}
+        vulnerability={selectedVulnerability}
+      />
     </Layout>
   )
 }

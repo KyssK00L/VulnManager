@@ -34,7 +34,7 @@ docker-compose exec api python scripts/init_db.py
 Ouvrez votre navigateur et allez sur : http://localhost:5173
 
 Credentials par défaut :
-- **Email**: `admin@vulnmanager.local`
+- **Username**: `admin`
 - **Password**: `admin123`
 
 ## Premiers pas
