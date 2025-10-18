@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cryptography Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Use of Weak Cryptographic Algorithm (MD5/SHA-1)</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - Password Hashing and Data Integrity</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application uses MD5 and SHA-1 hash algorithms for password storage and data integrity verification. Both algorithms are cryptographically broken and vulnerable to collision attacks. Password hashes can be cracked using rainbow tables and GPU-based attacks. MD5 collision attacks can be performed in seconds.</Description>
+    <Risk>Weak hashing algorithms enable:
+- Password cracking using rainbow tables
+- Fast brute-force attacks using GPUs (billions of hashes/sec)
+- Collision attacks allowing data manipulation
+- Certificate spoofing via MD5 collisions
+- Digital signature forgery
+- HMAC weaknesses enabling authentication bypass
+- Data integrity compromise
+- Compliance violations (PCI DSS prohibits MD5/SHA-1)
+- Inability to trust data authenticity
+- Successful password attacks against database dumps</Risk>
+    <Recommendation>1. Use bcrypt, scrypt, or Argon2 for password hashing
+2. Replace SHA-1 with SHA-256 or SHA-3 for integrity
+3. Use PBKDF2 with high iteration count (min 100,000) if needed
+4. Add per-user salts to password hashes
+5. Implement password hash upgrade on user login
+6. Use HMAC-SHA256 for message authentication
+7. Update SSL/TLS certificates to use SHA-256
+8. Audit codebase for deprecated hash functions
+9. Configure cost factors appropriately (bcrypt work factor 12+)
+10. Regular penetration testing of authentication security
+11. Monitor NIST and OWASP recommendations
+12. Migrate existing hashes to stronger algorithms</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak TLS Configuration (TLS 1.0/1.1)</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - Transport Layer Security</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.4</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>The web server supports deprecated TLS versions 1.0 and 1.1, which have known cryptographic weaknesses. Server also accepts weak cipher suites including those with CBC mode, RC4, export-grade ciphers, and anonymous Diffie-Hellman. Perfect Forward Secrecy (PFS) is not enforced.</Description>
+    <Risk>Weak TLS configuration enables:
+- BEAST attack on TLS 1.0 with CBC ciphers
+- POODLE attack exploiting CBC padding
+- Man-in-the-middle attacks via cipher downgrade
+- RC4 biases allowing plaintext recovery
+- FREAK attack using export-grade cryptography
+- Sweet32 attack on 64-bit block ciphers (3DES)
+- Decryption of past traffic if key compromised (no PFS)
+- Compliance violations (PCI DSS requires TLS 1.2+)
+- Data interception by network attackers
+- Session hijacking</Risk>
+    <Recommendation>1. Disable TLS 1.0 and TLS 1.1 completely
+2. Enable TLS 1.2 (minimum) and TLS 1.3 (preferred)
+3. Use only strong cipher suites (ECDHE, AES-GCM)
+4. Enforce Perfect Forward Secrecy (PFS)
+5. Disable CBC mode ciphers
+6. Remove RC4, 3DES, MD5, export ciphers
+7. Configure cipher suite order preference
+8. Enable HSTS with long max-age
+9. Use 2048-bit or higher RSA keys (prefer ECDSA P-256+)
+10. Regular testing with SSL Labs
+11. Example Mozilla Modern config:
+    TLSv1.3 TLSv1.2
+    ECDHE-ECDSA-AES128-GCM-SHA256
+12. Implement certificate pinning for critical services</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Sensitive Data Transmitted in Cleartext</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - Data in Transit</Scope>
+    <Protocol-Interface>HTTP/80</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Authentication credentials, session tokens, personal information, and payment card data are transmitted over unencrypted HTTP connections. Network traffic analysis reveals passwords, API keys, and sensitive user data in plaintext packets. Some pages use HTTPS but include HTTP resources (mixed content).</Description>
+    <Risk>Cleartext transmission exposes:
+- User credentials to network sniffing
+- Session token theft enabling account takeover
+- Personal identifiable information (PII) disclosure
+- Payment card data interception (PCI DSS violation)
+- API keys and authentication tokens
+- Business confidential information
+- Man-in-the-middle attack opportunities
+- Wi-Fi eavesdropping attacks
+- ISP and network monitoring exposure
+- Compliance violations (GDPR, HIPAA, PCI DSS)</Risk>
+    <Recommendation>1. Enforce HTTPS for entire application
+2. Redirect HTTP to HTTPS (301 redirects)
+3. Implement HSTS header: Strict-Transport-Security: max-age=31536000; includeSubDomains
+4. Enable HSTS preloading
+5. Eliminate mixed content warnings
+6. Use secure cookies with Secure flag
+7. Implement Certificate Transparency monitoring
+8. Use modern TLS configuration (TLS 1.2+)
+9. Obtain certificates from trusted CA (Let's Encrypt free)
+10. Configure automated certificate renewal
+11. Test with security headers checker
+12. Disable HTTP ports entirely in production</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Cryptographic Keys Stored Unencrypted</Name>
+    <Level>Critical</Level>
+    <Scope>Cryptography - Key Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Encryption keys, private keys, and secrets are stored in plaintext configuration files, databases, or file systems without protection. Private SSL keys, JWT signing keys, and database encryption keys are readable by application processes and potentially exposed in backups. No Hardware Security Module (HSM) or key management system is used.</Description>
+    <Risk>Unprotected cryptographic keys enable:
+- Decryption of all encrypted data if keys compromised
+- Digital signature forgery
+- Complete authentication bypass
+- SSL/TLS connection interception
+- Data exfiltration from backups
+- Long-term data compromise
+- Lateral movement using stolen keys
+- Inability to meet compliance requirements
+- Difficulty rotating compromised keys
+- Keys exposed in version control, logs, or error messages</Risk>
+    <Recommendation>1. Store keys in dedicated key management system (KMS)
+2. Use cloud provider KMS (AWS KMS, Azure Key Vault, GCP KMS)
+3. Implement Hardware Security Module (HSM) for critical keys
+4. Encrypt keys at rest using master keys
+5. Use envelope encryption pattern
+6. Implement strict file permissions (400) for key files
+7. Never commit keys to version control
+8. Use separate keys for each environment
+9. Implement key rotation policies
+10. Use managed identities to avoid storing keys
+11. Audit key access and usage
+12. Encrypt backups containing key material
+13. Consider using sealed secrets in Kubernetes</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insufficient Randomness in Security Contexts</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - Random Number Generation</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application uses weak random number generators (Math.random(), rand(), predictable seeds) for security-critical operations including token generation, password resets, CSRF tokens, and cryptographic key generation. Random values can be predicted or have insufficient entropy.</Description>
+    <Risk>Weak randomness enables:
+- Prediction of session tokens and CSRF tokens
+- Password reset token guessing
+- Cryptographic key compromise
+- Random number prediction in gambling/lottery apps
+- Bypass of security controls relying on randomness
+- Privilege escalation through token prediction
+- Account takeover via predictable reset tokens
+- Weakened encryption due to predictable keys
+- Reproducible attack scenarios
+- Statistical analysis revealing patterns</Risk>
+    <Recommendation>1. Use cryptographically secure random generators (CSPRNG)
+2. JavaScript: crypto.getRandomValues() or Web Crypto API
+3. Java: SecureRandom class
+4. Python: secrets module (not random module)
+5. C#: RNGCryptoServiceProvider or RandomNumberGenerator
+6. PHP: random_bytes() or openssl_random_pseudo_bytes()
+7. Use /dev/urandom on Unix systems
+8. Never seed CSPRNGs with predictable values
+9. Ensure sufficient entropy (minimum 128 bits for tokens)
+10. Test randomness quality with statistical test suites
+11. Avoid custom random implementations
+12. Use framework-provided secure random functions</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Hardcoded Cryptographic Keys in Source Code</Name>
+    <Level>Critical</Level>
+    <Scope>Cryptography - Key Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>AES encryption keys, JWT signing secrets, and other cryptographic keys are hardcoded directly in application source code as string literals or byte arrays. The same keys are used across development, staging, and production environments. Keys are visible in decompiled code and version control history.</Description>
+    <Risk>Hardcoded keys result in:
+- Complete encryption compromise if code accessed
+- Inability to rotate keys without code deployment
+- Keys exposed in public repositories
+- Same keys across all installations/tenants
+- Decompilation revealing keys
+- Keys in version control history
+- Developers with unnecessary key access
+- Compliance violations
+- Long-term data compromise
+- Difficulty responding to key compromise</Risk>
+    <Recommendation>1. Never hardcode cryptographic keys in source code
+2. Load keys from secure external configuration
+3. Use environment variables for key references
+4. Implement key management service (AWS KMS, Vault)
+5. Different keys per environment (dev/staging/prod)
+6. Different keys per tenant in multi-tenant apps
+7. Use .env files excluded from version control
+8. Scan repositories for exposed keys (git-secrets, TruffleHog)
+9. Implement key rotation procedures
+10. Revoke and rotate any hardcoded keys discovered
+11. Use automated secret scanning in CI/CD pipeline
+12. Educate developers on secure key management</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Use of ECB Mode Encryption</Name>
+    <Level>Medium</Level>
+    <Scope>Cryptography - Encryption Implementation</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>5.9</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application uses AES in ECB (Electronic Codebook) mode for encrypting data. ECB mode encrypts identical plaintext blocks to identical ciphertext blocks, revealing patterns in encrypted data. No initialization vector (IV) or nonce is used, making the encryption deterministic and vulnerable to pattern analysis.</Description>
+    <Risk>ECB mode encryption weaknesses:
+- Identical plaintext blocks produce identical ciphertext
+- Pattern recognition in encrypted images and structured data
+- Known plaintext attacks
+- Information leakage through pattern analysis
+- Lack of integrity protection
+- Replay attack vulnerabilities
+- Weakness against chosen plaintext attacks
+- Does not provide semantic security
+- Easy identification of repeated data
+- Compliance violations (FIPS 140-2 prohibits ECB for most uses)</Risk>
+    <Recommendation>1. Never use ECB mode for encryption
+2. Use authenticated encryption modes: GCM, CCM, or EAX
+3. Prefer AES-GCM for new implementations
+4. Use random initialization vectors (IVs) for each encryption
+5. Never reuse IV with same key
+6. Implement proper IV generation (CSPRNG)
+7. Use libraries that default to secure modes
+8. Add authentication tags to detect tampering
+9. For streaming: use CTR mode with HMAC
+10. CBC mode only if GCM unavailable (with random IV and HMAC)
+11. Store IV alongside ciphertext (IV is not secret)
+12. Regular cryptographic code reviews</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Missing Certificate Validation</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - SSL/TLS Client Implementation</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.4</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>The application's HTTP client disables SSL certificate validation to bypass "certificate not trusted" errors during development. Certificate hostname verification is disabled, and self-signed certificates are accepted without warning. This configuration was not removed before production deployment.</Description>
+    <Risk>Disabled certificate validation enables:
+- Man-in-the-middle attacks on all HTTPS connections
+- Interception of sensitive data in transit
+- Credential theft during API communication
+- Session token compromise
+- Data manipulation by network attackers
+- Complete bypass of SSL/TLS security
+- Inability to verify server identity
+- Acceptance of any certificate by any attacker
+- Compliance violations
+- False sense of security from using HTTPS</Risk>
+    <Recommendation>1. Enable full certificate validation in production
+2. Verify certificate chain of trust
+3. Validate certificate hostname matches
+4. Check certificate expiration dates
+5. Verify certificate revocation status (OCSP, CRL)
+6. Use certificate pinning for critical connections
+7. Never disable certificate validation globally
+8. Use trusted CA certificates only
+9. Remove development certificate bypass code
+10. Test with invalid certificates to verify validation
+11. Monitor certificate expiration
+12. Implement certificate transparency monitoring
+13. Example: curl --cacert /path/to/ca-bundle.crt</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Password Storage Without Salt</Name>
+    <Level>High</Level>
+    <Scope>Cryptography - Password Security</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>User passwords are hashed without per-user salts or using the same salt for all users. This allows attackers who obtain the password database to use precomputed rainbow tables for fast password cracking. Identical passwords produce identical hashes, revealing password reuse patterns.</Description>
+    <Risk>Unsalted password hashing enables:
+- Rainbow table attacks for instant password recovery
+- Identification of users with identical passwords
+- Faster brute-force attacks across all users
+- Password pattern analysis
+- Reuse of precomputed hash tables
+- Compromise of all users simultaneously
+- Inability to detect password reuse
+- Reduced cost for attackers
+- Higher success rate for password cracking
+- Compliance violations</Risk>
+    <Recommendation>1. Generate unique random salt for each password
+2. Use cryptographically secure random generator for salts
+3. Store salt alongside password hash
+4. Use modern password hashing: bcrypt, scrypt, or Argon2
+5. Salt is automatically handled by bcrypt/scrypt/Argon2
+6. Minimum salt length: 16 bytes (128 bits)
+7. Never use same salt for multiple passwords
+8. Add pepper (application-wide secret) for additional protection
+9. Implement password hash upgrade on user login
+10. Use high work factors (bcrypt cost 12+, scrypt N=2^15+)
+11. Regular security audits of password storage
+12. Monitor for database breaches</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Cryptographic Padding</Name>
+    <Level>Medium</Level>
+    <Scope>Cryptography - Encryption Implementation</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>5.9</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application uses AES-CBC encryption with PKCS#7 padding and provides distinguishable error messages for padding validation failures. This timing difference or error message variance creates a padding oracle vulnerability, allowing attackers to decrypt ciphertext without knowing the key.</Description>
+    <Risk>Padding oracle vulnerabilities enable:
+- Complete decryption of ciphertext without key
+- Encrypted session token decryption
+- Encrypted cookie tampering and decryption
+- Bypass of encryption protections
+- Information disclosure through error analysis
+- Automated attacks using padding oracle tools
+- Circumvention of encryption-based access controls
+- Data confidentiality compromise
+- Authentication bypass in some scenarios</Risk>
+    <Recommendation>1. Use authenticated encryption modes (AES-GCM, ChaCha20-Poly1305)
+2. Avoid CBC mode if possible
+3. Implement constant-time padding validation
+4. Use same error for all decryption failures
+5. Add HMAC over ciphertext before decryption
+6. Verify HMAC before attempting decryption
+7. Use encrypt-then-MAC construction
+8. Implement rate limiting on decryption attempts
+9. Log decryption failures for monitoring
+10. Use established crypto libraries (avoid custom implementations)
+11. Regular security testing for timing attacks
+12. Consider using AEAD ciphers exclusively</Recommendation>
+    <Type>Cryptography</Type>
+  </vulnerability>
+</vulnerabilities>

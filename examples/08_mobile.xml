@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mobile Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Insecure Data Storage in Mobile App</Name>
+    <Level>High</Level>
+    <Scope>Mobile - iOS and Android Applications</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Mobile application stores sensitive data in plaintext in local storage, SharedPreferences (Android), UserDefaults (iOS), or SQLite databases without encryption. Authentication tokens, passwords, and PII accessible to anyone with device access or backup access.</Description>
+    <Risk>Insecure storage exposes:
+- Authentication tokens and session IDs
+- User credentials and passwords
+- Personal identifiable information (PII)
+- API keys and secrets
+- Credit card and payment information
+- Health and financial data
+- Data accessible via device backups
+- Rooted/jailbroken device access
+- Malware data theft
+- Forensic data recovery</Risk>
+    <Recommendation>1. Use iOS Keychain for sensitive data
+2. Use Android Keystore system
+3. Encrypt data at rest using platform APIs
+4. Use SQLCipher for database encryption
+5. Implement certificate pinning
+6. Exclude sensitive data from backups
+7. Use secure storage libraries (MMKV, EncryptedSharedPreferences)
+8. Implement data classification
+9. Clear sensitive data on logout
+10. Use biometric authentication
+11. Implement runtime application self-protection (RASP)
+12. Regular security assessments</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Mobile App Binary Protection</Name>
+    <Level>Medium</Level>
+    <Scope>Mobile - Application Package</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app binary lacks obfuscation and anti-tampering protections. Source code easily decompiled using jadx, dex2jar, or class-dump. API keys, algorithms, and business logic exposed. No root/jailbreak detection. No integrity checks.</Description>
+    <Risk>Weak binary protection enables:
+- Source code extraction and analysis
+- API key and secret discovery
+- Business logic reverse engineering
+- Algorithm theft and cloning
+- Tampering and repackaging
+- Piracy and unauthorized distribution
+- Intellectual property theft
+- Bypassing security controls
+- Creating malicious variants
+- Competitive intelligence gathering</Risk>
+    <Recommendation>1. Implement code obfuscation (ProGuard, R8, SwiftShield)
+2. Use string encryption for sensitive strings
+3. Implement anti-debugging techniques
+4. Add root/jailbreak detection
+5. Implement integrity checks (SafetyNet, DeviceCheck)
+6. Use native code for sensitive operations
+7. Implement certificate pinning
+8. Add anti-tampering protections
+9. Use app attestation APIs
+10. Monitor for repackaged apps
+11. Implement RASP solutions
+12. Regular reverse engineering assessments</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Mobile Communication</Name>
+    <Level>High</Level>
+    <Scope>Mobile - Network Communications</Scope>
+    <Protocol-Interface>HTTP/HTTPS</Protocol-Interface>
+    <CVSS3.1_Score>7.4</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app communicates over HTTP without encryption. Certificate validation disabled to bypass SSL errors. Accepts self-signed certificates. No certificate pinning. Trusts all certificates in development builds deployed to production.</Description>
+    <Risk>Insecure communication enables:
+- Man-in-the-middle attacks
+- Credential interception
+- Session hijacking
+- API key theft
+- Data tampering in transit
+- Business logic bypass
+- User privacy violations
+- Payment data interception
+- Geolocation tracking
+- Compliance violations (PCI DSS, GDPR)</Risk>
+    <Recommendation>1. Use HTTPS for all communications
+2. Implement certificate pinning
+3. Enable certificate validation
+4. Use network security configuration (Android)
+5. Implement App Transport Security (iOS)
+6. Validate SSL/TLS certificates properly
+7. Use public key pinning
+8. Implement backup pins
+9. Monitor certificate expiration
+10. Test with proxy tools (Charles, Burp)
+11. Implement mutual TLS for sensitive APIs
+12. Regular network security assessments</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insufficient Mobile Input Validation</Name>
+    <Level>High</Level>
+    <Scope>Mobile - User Input Processing</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app accepts arbitrary input without validation in WebViews, deep links, and URL schemes. SQL injection via content providers (Android). Path traversal in file operations. No sanitization of user input before display.</Description>
+    <Risk>Insufficient validation enables:
+- SQL injection via content providers
+- Path traversal attacks
+- WebView XSS and JavaScript injection
+- Deep link hijacking
+- Intent redirection (Android)
+- URL scheme abuse
+- Local file disclosure
+- Arbitrary code execution
+- Data corruption
+- Application crashes</Risk>
+    <Recommendation>1. Validate all user input
+2. Sanitize data before display in WebViews
+3. Use parameterized queries
+4. Validate deep link parameters
+5. Implement URL scheme whitelisting
+6. Disable JavaScript in WebViews when possible
+7. Use secure WebView settings
+8. Implement path canonicalization
+9. Validate file paths
+10. Use framework input validation
+11. Implement content security policies
+12. Regular security testing</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Mobile Authentication</Name>
+    <Level>High</Level>
+    <Scope>Mobile - Authentication Mechanisms</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app uses weak authentication mechanisms. Client-side authentication checks. Biometric bypass via debugging. Weak PIN/pattern requirements. No account lockout. Session tokens never expire. Authentication state stored insecurely.</Description>
+    <Risk>Weak authentication enables:
+- Account takeover
+- Credential theft
+- Brute-force attacks
+- Session hijacking
+- Biometric bypass
+- Client-side bypass
+- Unauthorized access
+- Data breaches
+- Privacy violations
+- Compliance violations</Risk>
+    <Recommendation>1. Implement server-side authentication
+2. Use strong biometric implementation
+3. Implement MFA/2FA
+4. Enforce strong PIN/password policies
+5. Implement account lockout
+6. Use secure session management
+7. Implement token expiration
+8. Use OAuth 2.0 or OpenID Connect
+9. Implement certificate-based authentication
+10. Use platform biometric APIs properly
+11. Regular security assessments
+12. Implement anomaly detection</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Mobile IPC (Inter-Process Communication)</Name>
+    <Level>Medium</Level>
+    <Scope>Mobile - Component Communication</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Android app exports components (Activities, Services, Broadcast Receivers) without permission checks. iOS app uses insecure URL schemes. Sensitive data passed via Intents/URLs. No validation of calling components. Custom URL schemes without authentication.</Description>
+    <Risk>Insecure IPC enables:
+- Unauthorized component access
+- Data leakage via exported components
+- Intent/URL scheme hijacking
+- Privilege escalation
+- Sensitive data interception
+- Application manipulation
+- Bypassing authentication
+- Data injection attacks
+- Cross-app scripting
+- Privacy violations</Risk>
+    <Recommendation>1. Set android:exported="false" for internal components
+2. Implement permission checks for exported components
+3. Validate Intent/URL scheme data
+4. Use signature-level permissions
+5. Implement custom permission definitions
+6. Validate calling package identity
+7. Use explicit Intents when possible
+8. Implement URL scheme authentication
+9. Sanitize data from external sources
+10. Use LocalBroadcastManager for internal broadcasts
+11. Regular manifest security reviews
+12. Penetration testing for IPC vulnerabilities</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Hardcoded Secrets in Mobile App</Name>
+    <Level>Critical</Level>
+    <Scope>Mobile - Secret Management</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>API keys, encryption keys, and OAuth client secrets hardcoded in app source code. Credentials in strings.xml, Info.plist, or code files. Same credentials across all app instances. Keys extractable via decompilation.</Description>
+    <Risk>Hardcoded secrets expose:
+- API keys to all app users
+- Backend service credentials
+- Encryption keys
+- OAuth client secrets
+- Database credentials
+- Third-party service keys
+- Ability to impersonate app
+- API quota abuse
+- Service compromise
+- Long-term credential exposure</Risk>
+    <Recommendation>1. Never hardcode secrets in mobile apps
+2. Use backend-for-frontend pattern
+3. Implement OAuth with PKCE
+4. Use per-user API tokens
+5. Implement token rotation
+6. Use platform secure storage for local secrets
+7. Obfuscate necessary embedded keys
+8. Use certificate pinning
+9. Implement app attestation
+10. Monitor API usage patterns
+11. Regular secret scanning
+12. Use dynamic configuration from backend</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Mobile WebView JavaScript Injection</Name>
+    <Level>High</Level>
+    <Scope>Mobile - WebView Security</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>WebView configured with JavaScript enabled loading untrusted content. File access enabled. JavaScript bridges to native code without validation. allowFileAccessFromFileURLs enabled. Universal access from file URLs permitted.</Description>
+    <Risk>WebView vulnerabilities enable:
+- Cross-site scripting (XSS)
+- Local file disclosure
+- JavaScript bridge exploitation
+- Native code execution
+- Data exfiltration
+- Session hijacking
+- Credential theft
+- Access to device resources
+- Privacy violations
+- Malicious code injection</Risk>
+    <Recommendation>1. Disable JavaScript if not required
+2. Load only trusted content in WebView
+3. Disable file access from file URLs
+4. Implement secure JavaScript bridges
+5. Validate all bridge method parameters
+6. Use allowlist for loadUrl
+7. Disable universal access from file URLs
+8. Implement Content Security Policy
+9. Use WKWebView on iOS (not UIWebView)
+10. Sanitize content before loading
+11. Regular security reviews
+12. Implement WebView security best practices</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insufficient Mobile Session Management</Name>
+    <Level>Medium</Level>
+    <Scope>Mobile - Session Handling</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app sessions never timeout. Tokens stored insecurely and persist indefinitely. No server-side session invalidation. App doesn't handle token refresh properly. Sessions survive app updates and reinstalls.</Description>
+    <Risk>Weak session management enables:
+- Unauthorized access after device theft
+- Session hijacking
+- Long-term unauthorized access
+- Inability to revoke access
+- Token theft and reuse
+- Shared device compromise
+- Compliance violations
+- Privacy breaches
+- Account takeover
+- Persistent malicious access</Risk>
+    <Recommendation>1. Implement session timeouts
+2. Use short-lived access tokens
+3. Implement refresh token rotation
+4. Invalidate sessions on logout
+5. Implement remote session termination
+6. Clear tokens on app uninstall
+7. Use secure token storage
+8. Implement device binding
+9. Monitor active sessions
+10. Implement concurrent session limits
+11. Regular session security audits
+12. Use platform session management APIs</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Mobile App Logging Sensitive Data</Name>
+    <Level>Medium</Level>
+    <Scope>Mobile - Logging and Debugging</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>5.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Mobile app logs sensitive data to logcat (Android) or console (iOS). Credentials, tokens, PII, and API responses logged. Debug code left in production builds. Crash reports contain sensitive information. Logs accessible via ADB or Xcode.</Description>
+    <Risk>Excessive logging exposes:
+- User credentials and tokens
+- Personal identifiable information
+- API keys and secrets
+- Business logic details
+- User activity tracking
+- Debugging information
+- Internal system details
+- Privacy violations
+- GDPR compliance issues
+- Forensic data leakage</Risk>
+    <Recommendation>1. Remove debug logging from production builds
+2. Never log sensitive data
+3. Implement log level management
+4. Use conditional compilation for debug code
+5. Sanitize crash reports
+6. Implement secure logging libraries
+7. Regular code reviews for logging
+8. Use obfuscation for logs
+9. Implement log rotation and cleanup
+10. Disable verbose logging in release
+11. Use ProGuard/R8 to remove logs
+12. Security review of crash reporting</Recommendation>
+    <Type>Android</Type>
+  </vulnerability>
+</vulnerabilities>

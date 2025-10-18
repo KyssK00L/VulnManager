@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Network Infrastructure Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>SMBv1 Protocol Enabled (EternalBlue)</Name>
+    <Level>Critical</Level>
+    <Scope>Network Infrastructure - Windows File Servers</Scope>
+    <Protocol-Interface>SMB/445</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Multiple Windows file servers have SMBv1 protocol enabled. SMBv1 is a deprecated and insecure protocol with known critical vulnerabilities including EternalBlue (MS17-010). The protocol lacks modern security features such as encryption, integrity checking, and proper authentication mechanisms.</Description>
+    <Risk>SMBv1 vulnerabilities enable:
+- Remote code execution via EternalBlue exploit (WannaCry, NotPetya)
+- Lateral movement and privilege escalation
+- Complete network compromise through worm propagation
+- Data theft and ransomware deployment
+- Man-in-the-middle attacks due to lack of encryption
+- Credential theft through NTLM relay attacks
+- Denial of service attacks
+- Use as pivot point for APT operations</Risk>
+    <Recommendation>1. Disable SMBv1 on all Windows systems immediately
+2. Enable SMBv2/SMBv3 exclusively
+3. Audit network for SMBv1 traffic using packet captures
+4. Apply MS17-010 patch if not already installed
+5. Configure Windows Firewall to block SMB from internet
+6. Implement network segmentation to limit SMB exposure
+7. Enable SMB signing and encryption (SMB 3.1.1)
+8. Monitor for SMB exploitation attempts
+9. Remove legacy applications requiring SMBv1
+10. Use PowerShell: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Open DNS Resolver (DNS Amplification Risk)</Name>
+    <Level>High</Level>
+    <Scope>Network Infrastructure - External DNS Server</Scope>
+    <Protocol-Interface>DNS/53 UDP</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H</CVSS3.1_VectorString>
+    <Description>The DNS server is configured as an open resolver, accepting recursive queries from any source IP address. This misconfiguration allows the server to be abused for DNS amplification DDoS attacks and can expose internal network information.</Description>
+    <Risk>Open DNS resolvers can be exploited for:
+- DNS amplification attacks (attacker uses server to amplify DDoS)
+- Bandwidth exhaustion and service degradation
+- Cache poisoning attacks
+- Information disclosure about internal infrastructure
+- Reconnaissance of internal network topology
+- Abuse for spam and malicious activities
+- IP reputation damage
+- Legal liability for participating in attacks
+- Resource exhaustion on DNS server</Risk>
+    <Recommendation>1. Configure DNS to only accept queries from authorized networks
+2. Implement access control lists (ACLs) in BIND or Windows DNS
+3. Disable recursion for external-facing DNS servers
+4. Use split-horizon DNS (separate internal and external resolvers)
+5. Enable Response Rate Limiting (RRL) in BIND
+6. Implement DNSSEC for integrity protection
+7. Monitor DNS query patterns for anomalies
+8. Use dedicated recursive resolvers for internal networks
+9. BIND config: allow-recursion { trusted-networks; };
+10. Regular security audits using tools like DNSInspect</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>SNMP Community String Default/Weak Configuration</Name>
+    <Level>High</Level>
+    <Scope>Network Infrastructure - Switches and Routers</Scope>
+    <Protocol-Interface>SNMP/161 UDP</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Network devices are using SNMPv1/v2c with default or weak community strings (public/private). SNMP community strings are transmitted in cleartext and act as passwords for accessing device information and configuration. Default strings are widely known and easily guessable.</Description>
+    <Risk>Weak SNMP configuration enables:
+- Complete device information disclosure (configuration, routing tables)
+- Network topology mapping
+- Exposure of VLAN configuration
+- Disclosure of connected hosts and MAC addresses
+- Read/write access to device configuration (if RW community string compromised)
+- Modification of routing tables
+- Denial of service through device reconfiguration
+- Credential harvesting from device configs
+- Facilitates targeted attacks with gained intelligence</Risk>
+    <Recommendation>1. Upgrade to SNMPv3 with authentication and encryption
+2. Change all default community strings to strong, random values
+3. Restrict SNMP access to management networks only using ACLs
+4. Use read-only community strings where possible
+5. Disable SNMP if not required
+6. Implement network segmentation for management traffic
+7. Monitor SNMP access logs for unauthorized queries
+8. Use unique community strings per device
+9. Regular rotation of SNMP credentials
+10. Example Cisco ACL: access-list 99 permit 192.168.1.0 0.0.0.255</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Telnet Service Enabled</Name>
+    <Level>High</Level>
+    <Scope>Network Infrastructure - Legacy Network Devices</Scope>
+    <Protocol-Interface>Telnet/23</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Network devices are accessible via Telnet protocol, which transmits all data including credentials in cleartext. Telnet lacks encryption and modern authentication mechanisms, making it trivial for attackers to intercept credentials and session data through network sniffing.</Description>
+    <Risk>Telnet exposure leads to:
+- Credential theft through packet sniffing
+- Session hijacking and man-in-the-middle attacks
+- Complete device compromise
+- Unauthorized configuration changes
+- Network infrastructure takeover
+- Reconnaissance of network architecture
+- Credential reuse for lateral movement
+- Compliance violations (PCI DSS prohibits Telnet)
+- Easy exploitation even on switched networks (ARP spoofing)</Risk>
+    <Recommendation>1. Disable Telnet completely on all network devices
+2. Enable SSH (version 2 only) for remote management
+3. Configure strong SSH authentication (key-based preferred)
+4. Implement jump servers/bastion hosts for SSH access
+5. Use management VLANs isolated from user networks
+6. Enable logging for all SSH sessions
+7. Implement multi-factor authentication for device access
+8. Cisco: no transport input telnet / transport input ssh
+9. Regular vulnerability scans to detect Telnet exposure
+10. Use encrypted out-of-band management where possible</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>IPMI/BMC Exposed with Default Credentials</Name>
+    <Level>Critical</Level>
+    <Scope>Network Infrastructure - Server Management Interfaces</Scope>
+    <Protocol-Interface>IPMI/623 UDP</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Intelligent Platform Management Interface (IPMI) and Baseboard Management Controllers (BMC) are accessible from the network with default credentials (ADMIN/ADMIN). IPMI 2.0 has cipher suite zero vulnerability allowing authentication bypass. These interfaces provide full hardware control including power management and console access.</Description>
+    <Risk>Compromised IPMI/BMC enables:
+- Complete server compromise including powered-off servers
+- Out-of-band access bypassing OS security
+- Remote console access (KVM over IP)
+- BIOS/firmware modification
+- Virtual media mounting for OS installation
+- Persistent hardware-level backdoors
+- Credential dumping from memory
+- Bypassing all host-based security controls
+- Physical security bypass</Risk>
+    <Recommendation>1. Change all default IPMI/BMC passwords immediately
+2. Isolate IPMI interfaces on dedicated management VLAN
+3. Disable IPMI cipher suite zero
+4. Restrict IPMI access to management workstations only
+5. Enable IPMI over LAN only when necessary
+6. Use strong authentication mechanisms
+7. Regular firmware updates for BMC
+8. Implement network access control (NAC)
+9. Monitor IPMI access logs
+10. Consider disabling IPMI if not required
+11. Use VPN for remote IPMI access</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Router/Switch Administrative Interface Exposed to Internet</Name>
+    <Level>Critical</Level>
+    <Scope>Network Infrastructure - Edge Routers</Scope>
+    <Protocol-Interface>HTTP/80, HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Network device management interfaces (web GUI) are accessible from the internet without IP restrictions. Default credentials or weak passwords are often used, and devices may have unpatched vulnerabilities in their management interfaces. This creates a direct path to network infrastructure compromise.</Description>
+    <Risk>Exposed management interfaces enable:
+- Brute-force attacks against admin credentials
+- Exploitation of known vulnerabilities (CVEs in device firmware)
+- Complete device compromise and reconfiguration
+- Network traffic interception and manipulation
+- Routing table poisoning
+- VLAN hopping and network segmentation bypass
+- Installation of persistent backdoors
+- Use as pivot point for internal network access
+- Denial of service through device misconfiguration
+- Botnet recruitment (Mirai, VPNFilter)</Risk>
+    <Recommendation>1. Never expose management interfaces to the internet
+2. Configure access restrictions to management subnet only
+3. Disable HTTP, use HTTPS exclusively for web management
+4. Implement strong, unique passwords for all devices
+5. Use certificate-based authentication where possible
+6. Enable multi-factor authentication if supported
+7. Deploy jump servers for remote management access
+8. Implement role-based access control (RBAC)
+9. Regular firmware updates and security patches
+10. Monitor management interface access logs
+11. Consider out-of-band management network
+12. Use network access control (NAC) for management access</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>BGP Session Without Authentication</Name>
+    <Level>High</Level>
+    <Scope>Network Infrastructure - Border Gateway Protocol</Scope>
+    <Protocol-Interface>BGP/179</Protocol-Interface>
+    <CVSS3.1_Score>7.4</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:H</CVSS3.1_VectorString>
+    <Description>BGP peering sessions are configured without MD5 authentication or BGPsec. This allows attackers to inject or manipulate routing advertisements, potentially redirecting traffic or causing routing instabilities.</Description>
+    <Risk>Unauthenticated BGP enables:
+- Route hijacking and traffic interception
+- Blackhole routing causing denial of service
+- Man-in-the-middle attacks at routing level
+- BGP route injection
+- Traffic redirection to attacker-controlled networks
+- Internet-wide outages
+- Data exfiltration through rerouted traffic
+- Competitive intelligence gathering</Risk>
+    <Recommendation>1. Enable BGP MD5 authentication on all sessions
+2. Implement prefix filtering with strict policies
+3. Use BGP route validation (RPKI/ROV)
+4. Configure maximum prefix limits
+5. Implement BGP peer authentication
+6. Monitor BGP route changes and anomalies
+7. Use dedicated BGP security tools
+8. Implement route dampening
+9. Regular BGP configuration audits
+10. Consider Software-Defined Networking (SDN) for better control</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Cisco Smart Install Protocol Exposed</Name>
+    <Level>Critical</Level>
+    <Scope>Network Infrastructure - Cisco Switches</Scope>
+    <Protocol-Interface>TCP/4786</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Cisco Smart Install (SMI) protocol is enabled and exposed without authentication. This protocol allows unauthorized configuration changes, TFTP file exfiltration, and arbitrary command execution on Cisco switches.</Description>
+    <Risk>SMI exploitation enables:
+- Complete switch configuration extraction
+- Unauthorized configuration modifications
+- VLAN manipulation
+- Credential theft from configs
+- Network topology disclosure
+- Man-in-the-middle positioning
+- Denial of service
+- Ransomware deployment (switch configs encrypted)</Risk>
+    <Recommendation>1. Disable Smart Install if not required: no vstack
+2. Restrict Smart Install to management VLAN using ACLs
+3. Update to latest IOS version with SMI security fixes
+4. Monitor port 4786 for unauthorized access
+5. Implement network segmentation
+6. Use Smart Install Director for centralized management
+7. Regular configuration backups
+8. Deploy intrusion detection for SMI exploitation
+9. Cisco ACL example: access-list 100 deny tcp any any eq 4786</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>VPN Using Weak Encryption (DES/3DES)</Name>
+    <Level>High</Level>
+    <Scope>Network Infrastructure - IPsec VPN Concentrator</Scope>
+    <Protocol-Interface>IPsec/UDP 500</Protocol-Interface>
+    <CVSS3.1_Score>7.4</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>The IPsec VPN configuration uses deprecated encryption algorithms (DES, 3DES) and weak Diffie-Hellman groups (Group 1, Group 2). These cryptographic weaknesses can be exploited to decrypt VPN traffic or perform man-in-the-middle attacks, especially with sufficient computational resources.</Description>
+    <Risk>Weak VPN encryption enables:
+- VPN traffic decryption by sophisticated attackers
+- Man-in-the-middle attacks on VPN connections
+- Exposure of sensitive corporate data in transit
+- Compromise of remote access credentials
+- Access to internal network resources
+- Compliance violations (PCI DSS, HIPAA requirements)
+- Logjam and FREAK attacks on DH key exchange
+- Reduced security against nation-state adversaries
+- Future decryption of captured traffic (store-now-decrypt-later)</Risk>
+    <Recommendation>1. Use AES-256-GCM for encryption
+2. Configure SHA-256 or SHA-384 for integrity
+3. Use Diffie-Hellman Group 14 or higher (preferably Group 19/20/21)
+4. Disable DES, 3DES, MD5, SHA-1
+5. Implement Perfect Forward Secrecy (PFS)
+6. Use IKEv2 instead of IKEv1
+7. Configure appropriate SA lifetimes
+8. Enable Dead Peer Detection (DPD)
+9. Implement certificate-based authentication
+10. Regular cryptographic configuration audits</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Network Time Protocol (NTP) Amplification Vulnerability</Name>
+    <Level>Medium</Level>
+    <Scope>Network Infrastructure - NTP Servers</Scope>
+    <Protocol-Interface>NTP/123 UDP</Protocol-Interface>
+    <CVSS3.1_Score>5.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L</CVSS3.1_VectorString>
+    <Description>NTP servers have the monlist command enabled and are accessible from the internet without access restrictions. The monlist command returns the last 600 clients that connected to the server, and can be exploited for DDoS amplification attacks with amplification factors up to 206x.</Description>
+    <Risk>Vulnerable NTP configuration enables:
+- DDoS amplification attacks using the server
+- Bandwidth exhaustion
+- Service disruption
+- IP reputation damage
+- Information disclosure about network clients
+- Legal liability for participating in attacks
+- Resource exhaustion on NTP server
+- Facilitates network reconnaissance
+- May impact time synchronization reliability</Risk>
+    <Recommendation>1. Disable monlist command (ntpdc -c monlist disable)
+2. Update NTP daemon to version 4.2.7p26 or later
+3. Configure access restrictions using restrict directive
+4. Only allow NTP queries from trusted networks
+5. Implement rate limiting for NTP responses
+6. Use BCP38 to prevent IP spoofing
+7. Monitor NTP traffic for amplification attempts
+8. ntp.conf: restrict default kod nomodify notrap nopeer noquery
+9. Consider using NTS (Network Time Security) for encryption
+10. Regular security updates and patches</Recommendation>
+    <Type>Network</Type>
+  </vulnerability>
+</vulnerabilities>

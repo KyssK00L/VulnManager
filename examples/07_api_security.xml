@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- API Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Missing API Rate Limiting</Name>
+    <Level>Medium</Level>
+    <Scope>API Security - REST API Endpoints</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N</CVSS3.1_VectorString>
+    <Description>API endpoints do not implement rate limiting or throttling. Unlimited requests can be made without restrictions. No quota management or request counting. Enables brute-force attacks, credential stuffing, and resource exhaustion.</Description>
+    <Risk>Missing rate limiting enables:
+- Brute-force attacks on authentication endpoints
+- Credential stuffing at scale
+- API abuse and resource exhaustion
+- Denial of service through excessive requests
+- Data scraping and harvesting
+- Cost abuse in pay-per-use APIs
+- Bypassing business logic restrictions
+- Automated attacks without detection
+- Competitive intelligence gathering
+- Service degradation for legitimate users</Risk>
+    <Recommendation>1. Implement rate limiting on all API endpoints
+2. Use different limits for authenticated vs unauthenticated users
+3. Implement sliding window or token bucket algorithms
+4. Return 429 Too Many Requests with Retry-After header
+5. Apply stricter limits on sensitive endpoints (auth, payment)
+6. Implement IP-based and user-based rate limiting
+7. Use API gateway features (AWS API Gateway, Kong, etc.)
+8. Monitor and alert on rate limit violations
+9. Implement CAPTCHA for repeated violations
+10. Document rate limits in API documentation
+11. Provide rate limit headers (X-RateLimit-*)
+12. Implement backoff strategies for clients</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Broken Object Level Authorization (BOLA)</Name>
+    <Level>High</Level>
+    <Scope>API Security - Object Access Control</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>API endpoints accept object IDs without verifying user authorization. GET /api/users/1234 returns data for any ID without checking if the requester has access. Predictable numeric IDs enable enumeration attacks.</Description>
+    <Risk>BOLA vulnerabilities enable:
+- Unauthorized access to other users' data
+- Enumeration of all objects via ID iteration
+- Privacy violations and data breaches
+- Horizontal privilege escalation
+- Customer data exposure
+- Financial record access
+- PII and GDPR violations
+- Competitive intelligence gathering
+- Account takeover chain
+- Mass data exfiltration</Risk>
+    <Recommendation>1. Implement object-level authorization checks
+2. Verify user ownership before returning data
+3. Use UUIDs instead of sequential IDs
+4. Implement indirect reference maps
+5. Apply principle of least privilege
+6. Log all access attempts
+7. Implement access control at database level
+8. Use framework-level authorization middleware
+9. Regular authorization testing
+10. Implement rate limiting on object access
+11. Monitor for enumeration patterns
+12. Use API security testing tools (OWASP ZAP, Burp)</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Mass Assignment Vulnerability</Name>
+    <Level>High</Level>
+    <Scope>API Security - Data Binding</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N</CVSS3.1_VectorString>
+    <Description>API automatically binds client-provided data to internal objects without filtering. Attackers can modify fields not intended for user update (isAdmin, balance, role) by including them in request payload.</Description>
+    <Risk>Mass assignment enables:
+- Privilege escalation via role modification
+- Price manipulation in e-commerce
+- Account balance tampering
+- Bypassing business logic
+- Unauthorized field modifications
+- Administrative access gains
+- Data integrity violations
+- Fraud and financial losses
+- Security control bypass
+- Account takeover</Risk>
+    <Recommendation>1. Use allowlisting for acceptable fields
+2. Implement Data Transfer Objects (DTOs)
+3. Validate and sanitize all input
+4. Use explicit property binding
+5. Separate read/write models
+6. Implement field-level access control
+7. Disable automatic data binding features
+8. Code reviews for mass assignment risks
+9. Use immutable objects where possible
+10. Implement audit logging for field changes
+11. Regular security testing
+12. Framework-specific protections (Rails strong parameters, etc.)</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>GraphQL Query Depth and Complexity Not Limited</Name>
+    <Level>Medium</Level>
+    <Scope>API Security - GraphQL Implementation</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>5.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L</CVSS3.1_VectorString>
+    <Description>GraphQL API allows unlimited query depth and complexity. Nested queries can cause resource exhaustion. No query cost analysis or complexity limits. Introspection enabled in production exposing full schema.</Description>
+    <Risk>Unprotected GraphQL enables:
+- Denial of service via deeply nested queries
+- Resource exhaustion and server crashes
+- Database performance degradation
+- Batch query abuse
+- Schema information disclosure
+- Query timing attacks
+- Circular reference exploitation
+- Cost abuse in serverless environments
+- Legitimate user service impact
+- Difficult capacity planning</Risk>
+    <Recommendation>1. Implement query depth limiting (max 7-10 levels)
+2. Use query complexity analysis
+3. Disable introspection in production
+4. Implement query cost calculation
+5. Set maximum query complexity threshold
+6. Use persisted queries whitelist
+7. Implement pagination on collections
+8. Apply rate limiting
+9. Monitor query performance
+10. Use GraphQL-specific security tools
+11. Implement query timeouts
+12. Regular security assessments</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>API Key Exposed in Client-Side Code</Name>
+    <Level>High</Level>
+    <Scope>API Security - Authentication</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>API keys are hardcoded in JavaScript, mobile apps, or public repositories. Same key shared across all users. No key rotation or revocation mechanism. Keys visible in browser dev tools or decompiled apps.</Description>
+    <Risk>Exposed API keys enable:
+- Unauthorized API access
+- API quota exhaustion
+- Data access and exfiltration
+- Service abuse and cost inflation
+- Third-party service compromise
+- Reputation damage
+- Difficulty revoking compromised keys
+- Compliance violations
+- Revenue loss
+- Customer data breaches</Risk>
+    <Recommendation>1. Never embed API keys in client-side code
+2. Use OAuth 2.0 or JWT for authentication
+3. Implement backend-for-frontend pattern
+4. Use per-user API keys when needed
+5. Implement key rotation policies
+6. Monitor API key usage
+7. Implement key scoping and restrictions
+8. Use environment variables on backend
+9. Scan repositories for exposed keys
+10. Implement key revocation mechanism
+11. Rate limit per API key
+12. Audit and cleanup unused keys</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insufficient API Input Validation</Name>
+    <Level>High</Level>
+    <Scope>API Security - Data Validation</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L</CVSS3.1_VectorString>
+    <Description>API accepts arbitrary input without validation. No type checking, length limits, or format validation. Accepts unexpected data types. No sanitization of special characters. Enables injection attacks and business logic bypass.</Description>
+    <Risk>Insufficient validation enables:
+- SQL and NoSQL injection
+- Command injection
+- XML/XXE injection
+- Business logic bypass
+- Buffer overflow attacks
+- Type confusion vulnerabilities
+- Data corruption
+- Application crashes
+- Bypassing rate limits
+- Price manipulation</Risk>
+    <Recommendation>1. Implement strict input validation
+2. Use schema validation (JSON Schema, OpenAPI)
+3. Whitelist acceptable values
+4. Enforce data type constraints
+5. Implement length and range limits
+6. Sanitize special characters
+7. Validate against business rules
+8. Use framework validation features
+9. Reject unexpected fields
+10. Implement server-side validation
+11. Regular security testing
+12. Use API specification formats (OpenAPI/Swagger)</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Sensitive Data in API Response</Name>
+    <Level>Medium</Level>
+    <Scope>API Security - Data Exposure</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>API responses include sensitive data unnecessarily. Full credit card numbers, SSNs, and passwords (even hashed) returned. Internal system details exposed. Stack traces in error responses. Verbose error messages revealing system architecture.</Description>
+    <Risk>Data over-exposure leads to:
+- Privacy violations
+- PII disclosure
+- GDPR and compliance violations
+- Credential exposure
+- Internal architecture disclosure
+- Security control revelation
+- Intellectual property leakage
+- Competitive intelligence
+- Social engineering data
+- Further attack facilitation</Risk>
+    <Recommendation>1. Return only necessary data in responses
+2. Implement field filtering/sparse fieldsets
+3. Use DTOs to control response structure
+4. Mask sensitive data (credit cards, SSNs)
+5. Never return password hashes
+6. Implement generic error messages
+7. Log detailed errors server-side only
+8. Use different response models for different roles
+9. Regular API response audits
+10. Implement data classification
+11. Use API documentation to define responses
+12. Security review of all endpoints</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure API Versioning</Name>
+    <Level>Medium</Level>
+    <Scope>API Security - Version Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>4.3</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Deprecated API versions remain accessible with known vulnerabilities. No forced deprecation or sunset dates. Old versions lack security patches. Version specified in URL allows version enumeration.</Description>
+    <Risk>Insecure versioning enables:
+- Exploitation of known vulnerabilities in old versions
+- Bypassing security controls in newer versions
+- Access to deprecated endpoints
+- Inconsistent security posture
+- Maintenance burden
+- Compliance issues
+- Difficulty in incident response
+- Security regression attacks
+- Legacy code exploitation
+- Confused deputy attacks</Risk>
+    <Recommendation>1. Implement version deprecation policy
+2. Force migration to newer versions
+3. Apply security patches to all supported versions
+4. Communicate deprecation timelines
+5. Monitor usage of deprecated versions
+6. Implement sunset dates
+7. Return deprecation warnings in headers
+8. Use version negotiation
+9. Regular vulnerability assessments across versions
+10. Document supported API versions
+11. Implement access controls per version
+12. Automated security testing for all versions</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Missing API Request Logging and Monitoring</Name>
+    <Level>Medium</Level>
+    <Scope>API Security - Audit and Detection</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>5.9</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N</CVSS3.1_VectorString>
+    <Description>API requests are not logged comprehensively. No monitoring for suspicious patterns. Failed authentication attempts not tracked. No alerting on anomalous behavior. Insufficient audit trail for compliance.</Description>
+    <Risk>Missing logging prevents:
+- Detection of ongoing attacks
+- Incident response and forensics
+- Identifying compromised accounts
+- Compliance with regulatory requirements
+- Attribution of malicious activities
+- Pattern analysis for threats
+- Root cause analysis
+- Security posture assessment
+- Audit trail for investigations
+- Early warning of breaches</Risk>
+    <Recommendation>1. Log all API requests with relevant context
+2. Include timestamp, user ID, IP, endpoint, parameters
+3. Log authentication attempts (success and failure)
+4. Implement centralized logging (ELK, Splunk, etc.)
+5. Set up real-time monitoring and alerting
+6. Detect anomalous patterns (impossible travel, etc.)
+7. Implement log retention policies
+8. Protect log integrity
+9. Regular log review and analysis
+10. Integrate with SIEM
+11. Monitor for common attack patterns
+12. Compliance-focused logging (PCI DSS, HIPAA)</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>JWT Token Without Expiration or Signature Verification</Name>
+    <Level>Critical</Level>
+    <Scope>API Security - Token Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>9.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>JWT tokens lack expiration (exp claim). Signature verification not performed. Algorithm field accepts "none". Tokens stored in localStorage. No token revocation mechanism. Symmetric keys used for asymmetric algorithms (algorithm confusion).</Description>
+    <Risk>Weak JWT implementation enables:
+- Token forgery and tampering
+- Privilege escalation via modified claims
+- Permanent access with non-expiring tokens
+- Algorithm confusion attacks
+- Account takeover
+- XSS-based token theft from localStorage
+- Inability to revoke compromised tokens
+- Session hijacking
+- Complete authentication bypass
+- Lateral movement</Risk>
+    <Recommendation>1. Always verify JWT signatures
+2. Explicitly whitelist allowed algorithms
+3. Include short expiration (exp claim, 15-60 min)
+4. Implement refresh token rotation
+5. Use RS256 or ES256 for asymmetric signing
+6. Store tokens in httpOnly cookies (not localStorage)
+7. Validate all claims (iss, aud, exp, nbf)
+8. Implement token revocation (blacklist or versioning)
+9. Use jti claim for token identification
+10. Regular key rotation
+11. Secure key storage (HSM, key vault)
+12. Use established JWT libraries</Recommendation>
+    <Type>API</Type>
+  </vulnerability>
+</vulnerabilities>

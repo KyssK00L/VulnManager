@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Authentication Security Vulnerabilities -->
+<vulnerabilities>
+  <vulnerability>
+    <Name>Missing Multi-Factor Authentication (MFA)</Name>
+    <Level>High</Level>
+    <Scope>Authentication - All User Accounts</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>7.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>The application relies solely on username and password authentication without offering multi-factor authentication (MFA) as an option. Users with access to sensitive data or administrative functions have no additional security layer beyond passwords, which are vulnerable to compromise through phishing, credential stuffing, and other attacks.</Description>
+    <Risk>Lack of MFA increases risk of:
+- Account compromise through phishing attacks
+- Credential stuffing using leaked password databases
+- Keylogger and malware stealing credentials
+- Social engineering attacks
+- Brute-force attacks successfully compromising weak passwords
+- Insider threats with stolen credentials
+- Unauthorized access to sensitive data
+- Privilege escalation after initial compromise
+- Regulatory non-compliance (many frameworks require MFA)
+- Increased dwell time for attackers in compromised accounts</Risk>
+    <Recommendation>1. Implement MFA for all user accounts (mandatory for admins)
+2. Support multiple MFA methods (TOTP, WebAuthn/FIDO2, SMS as fallback)
+3. Enforce MFA for privileged accounts and sensitive operations
+4. Provide backup codes for account recovery
+5. Implement risk-based authentication (adaptive MFA)
+6. Support hardware security keys (YubiKey, Titan)
+7. Educate users on MFA benefits and usage
+8. Monitor and alert on MFA bypass attempts
+9. Consider passwordless authentication (FIDO2, passkeys)
+10. Comply with NIST SP 800-63B guidelines</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure Password Reset Mechanism</Name>
+    <Level>High</Level>
+    <Scope>Authentication - Password Recovery Flow</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>The password reset functionality uses predictable tokens, does not expire tokens after use, and allows unlimited reset requests. Reset links are sent via unencrypted email and remain valid indefinitely. The system does not verify current password or MFA during reset, and tokens can be reused.</Description>
+    <Risk>Weak password reset enables:
+- Account takeover through token prediction or brute-force
+- Token interception via email compromise
+- Replay attacks using captured reset tokens
+- Account enumeration to identify valid usernames
+- Denial of service through reset request flooding
+- Session fixation attacks
+- Bypassing MFA requirements
+- Unauthorized password changes
+- Privacy violations and compliance issues
+- Social engineering attacks exploiting reset process</Risk>
+    <Recommendation>1. Generate cryptographically secure random tokens (min 128-bit entropy)
+2. Expire reset tokens after single use
+3. Implement short token validity period (15-30 minutes)
+4. Rate limit password reset requests per account
+5. Require MFA verification for password reset when possible
+6. Send notifications when password is changed
+7. Invalidate all sessions after password reset
+8. Use secure reset link format: /reset?token=RANDOM&amp;user=HASH
+9. Log all password reset activities
+10. Implement CAPTCHA to prevent automated abuse
+11. Consider security questions with non-guessable answers
+12. Don't reveal whether email exists during reset</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Default Credentials Not Changed</Name>
+    <Level>Critical</Level>
+    <Scope>Authentication - System Administration</Scope>
+    <Protocol-Interface>Multiple</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>Multiple systems use default vendor credentials (admin/admin, root/password, admin/1234). Databases, application admin panels, IoT devices, and network equipment retain factory default passwords matching common credential lists.</Description>
+    <Risk>Default credentials enable:
+- Immediate unauthorized access
+- Complete system compromise
+- Automated attacks using credential scanners
+- Botnet recruitment
+- Data breaches
+- Ransomware deployment
+- Lateral movement
+- Installation of persistent backdoors
+- Compliance violations</Risk>
+    <Recommendation>1. Change ALL default passwords immediately
+2. Force password change on first login
+3. Use strong, unique passwords per system
+4. Implement automated scanning for defaults
+5. Password complexity requirements
+6. Document credential changes securely
+7. Regular audits with default credential lists
+8. Disable or rename default admin accounts</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Weak Password Policy</Name>
+    <Level>Medium</Level>
+    <Scope>Authentication - Password Requirements</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Password policy requires only 6-8 characters with no complexity requirements. Common passwords (password123, qwerty) are accepted. No password history enforcement allows immediate reuse.</Description>
+    <Risk>Weak passwords lead to:
+- Successful brute-force attacks
+- Password spraying campaigns
+- Credential stuffing
+- Dictionary attacks
+- Rainbow table attacks
+- Easy compromise via social engineering
+- Compliance violations</Risk>
+    <Recommendation>1. Minimum 12-14 character passwords
+2. Check against compromised password databases (Have I Been Pwned)
+3. Block common passwords and patterns
+4. Enforce password history (24 passwords)
+5. Implement passphrases
+6. Deploy Azure AD Password Protection
+7. Use NIST SP 800-63B guidelines
+8. Consider passwordless authentication</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Missing Account Lockout Policy</Name>
+    <Level>Medium</Level>
+    <Scope>Authentication - Brute Force Protection</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</CVSS3.1_VectorString>
+    <Description>The application allows unlimited failed login attempts without account lockout or progressive delays. Attackers can perform unlimited brute-force attacks without triggering lockouts or alerts.</Description>
+    <Risk>Missing lockout enables:
+- Unlimited brute-force password attacks
+- Credential stuffing at scale
+- Password spraying
+- Account enumeration
+- Resource exhaustion
+- Automated attack tools operating unchecked
+- Delayed attack detection</Risk>
+    <Recommendation>1. Implement account lockout after 5-10 failed attempts
+2. Use progressive delays (exponential backoff)
+3. Implement CAPTCHA after initial failures
+4. Lockout duration 15-30 minutes or admin unlock
+5. Alert users of failed attempts
+6. Log all failed authentication
+7. IP-based rate limiting
+8. Behavioral analysis for anomalous logins</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Session Token Not Invalidated After Logout</Name>
+    <Level>Medium</Level>
+    <Scope>Authentication - Session Management</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>6.5</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N</CVSS3.1_VectorString>
+    <Description>Session tokens remain valid server-side after logout. Stolen cookies can be reused even after explicit logout by the legitimate user.</Description>
+    <Risk>Persistent sessions enable:
+- Session hijacking after logout
+- Unauthorized access on shared computers
+- Extended window for stolen tokens
+- Inability to revoke compromised sessions
+- Compliance violations
+- Increased risk in public environments</Risk>
+    <Recommendation>1. Invalidate session server-side on logout
+2. Clear session cookie from client
+3. Maintain server-side session store
+4. Implement "logout everywhere" functionality
+5. Active session management UI
+6. Invalidate sessions on password change
+7. Session versioning
+8. Absolute session timeout</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Predictable Session Identifiers</Name>
+    <Level>High</Level>
+    <Scope>Authentication - Session ID Generation</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>8.1</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N</CVSS3.1_VectorString>
+    <Description>Session IDs are generated using sequential numbers or timestamps. Attackers can predict or enumerate valid session IDs to hijack user sessions. Insufficient entropy (less than 128 bits).</Description>
+    <Risk>Predictable sessions enable:
+- Session hijacking via prediction
+- Brute-force session enumeration
+- Account takeover
+- Privilege escalation
+- Automated attacks
+- Bypassing authentication
+- Identity theft</Risk>
+    <Recommendation>1. Use cryptographically secure random generator (CSPRNG)
+2. Minimum 128-bit entropy for session IDs
+3. Use framework session management
+4. Regenerate session ID on privilege change
+5. New session ID after authentication
+6. Long random alphanumeric identifiers
+7. Never include predictable info (user ID, timestamp)
+8. Regular session secret key rotation</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Username Enumeration via Error Messages</Name>
+    <Level>Low</Level>
+    <Scope>Authentication - Login Error Handling</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>3.7</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N</CVSS3.1_VectorString>
+    <Description>Login error messages reveal whether username exists ("Invalid password for user X" vs "User does not exist"). Different response times or HTTP status codes for valid vs invalid usernames.</Description>
+    <Risk>Username enumeration enables:
+- Identification of valid accounts
+- Targeted phishing campaigns
+- Focused brute-force attacks
+- Privacy violations
+- Social engineering
+- Account discovery
+- Reduced attack effort</Risk>
+    <Recommendation>1. Use generic error messages ("Invalid credentials")
+2. Implement constant-time responses
+3. Same HTTP status for all auth failures
+4. Consider CAPTCHA after multiple attempts
+5. Rate limiting on login attempts
+6. Monitor for enumeration patterns
+7. Log enumeration attempts</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Hardcoded Credentials in Source Code</Name>
+    <Level>Critical</Level>
+    <Scope>Authentication - Application Code</Scope>
+    <Protocol-Interface>N/A</Protocol-Interface>
+    <CVSS3.1_Score>9.8</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
+    <Description>API keys, database passwords, and credentials hardcoded in source code, configuration files in version control, or client-side JavaScript. Credentials visible to anyone with code access.</Description>
+    <Risk>Hardcoded credentials expose:
+- Database and API access
+- Complete system compromise
+- Credentials in public repositories
+- Third-party service abuse
+- Difficulty rotating compromised credentials
+- Lateral movement
+- Compliance violations
+- Long-term undetected access</Risk>
+    <Recommendation>1. Never hardcode credentials
+2. Use environment variables
+3. Implement secrets management (Vault, AWS Secrets Manager)
+4. Use .env files excluded from VCS
+5. Rotate credentials regularly
+6. Scan repos for secrets (git-secrets, TruffleHog)
+7. Different credentials per environment
+8. Monitor for exposed secrets in public repos</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+
+  <vulnerability>
+    <Name>Insecure "Remember Me" Functionality</Name>
+    <Level>Medium</Level>
+    <Scope>Authentication - Persistent Login</Scope>
+    <Protocol-Interface>HTTPS/443</Protocol-Interface>
+    <CVSS3.1_Score>5.9</CVSS3.1_Score>
+    <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:L/A:N</CVSS3.1_VectorString>
+    <Description>"Remember Me" feature stores username and password hash in cookies. Cookies lack HttpOnly flag and use weak encryption. Long-lived remember tokens never expire.</Description>
+    <Risk>Insecure persistence enables:
+- Cookie theft via XSS
+- Long-term unauthorized access
+- Password hash extraction
+- Session hijacking
+- Account takeover on shared devices
+- Inability to revoke remember tokens
+- Cross-site attacks</Risk>
+    <Recommendation>1. Use random tokens instead of credentials
+2. Store tokens securely server-side
+3. Implement token expiration (30-90 days)
+4. Require re-auth for sensitive operations
+5. Use HttpOnly and Secure cookie flags
+6. Token rotation on use
+7. User-visible token management
+8. Bind tokens to IP/user-agent (with caution)</Recommendation>
+    <Type>Authentication</Type>
+  </vulnerability>
+</vulnerabilities>
