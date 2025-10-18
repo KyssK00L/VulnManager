@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Edit2, Trash2, Save, X, Package, Search } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save, X, Package, Search, ChevronDown } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { notify } from '../lib/notifications'
 import axios from 'axios'
@@ -19,6 +19,9 @@ export default function TypesManager() {
     color: 'text-gray-600',
     description: '',
   })
+
+  // Track expanded/collapsed categories - all expanded by default
+  const [expandedCategories, setExpandedCategories] = useState(new Set())
 
   // Fetch types
   const { data: typesData, isLoading } = useQuery({
@@ -45,6 +48,26 @@ export default function TypesManager() {
     acc[type.category].push(type)
     return acc
   }, {})
+
+  // Toggle category expansion
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(category)) {
+        next.delete(category)
+      } else {
+        next.add(category)
+      }
+      return next
+    })
+  }
+
+  // Check if category is expanded (default to expanded if not in set)
+  const isCategoryExpanded = (category) => {
+    // If no categories have been toggled yet, show all as expanded
+    if (expandedCategories.size === 0) return true
+    return expandedCategories.has(category)
+  }
 
   const handleEdit = (type) => {
     setEditingType(type.name)
@@ -423,10 +446,32 @@ export default function TypesManager() {
 
       {/* Types Grid by Category */}
       <div className="space-y-6">
-        {Object.entries(groupedTypes).map(([category, types]) => (
-          <div key={category}>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{category}</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Object.entries(groupedTypes).map(([category, types]) => {
+          const isExpanded = isCategoryExpanded(category)
+
+          return (
+            <div key={category}>
+              {/* Category Header - Clickable */}
+              <div
+                className="mb-3 flex items-center gap-2 cursor-pointer select-none group"
+                onClick={() => toggleCategory(category)}
+              >
+                <ChevronDown
+                  className={`h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 ${
+                    isExpanded ? '' : '-rotate-90'
+                  }`}
+                />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  {category}
+                </h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  ({types.length} {types.length === 1 ? 'type' : 'types'})
+                </span>
+              </div>
+
+              {/* Types Grid - Collapsible */}
+              {isExpanded && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {types.map((type) => {
                 const IconComponent = LucideIcons[type.icon]
                 const isEditing = editingType === type.name
@@ -478,9 +523,11 @@ export default function TypesManager() {
                   </div>
                 )
               })}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Empty state */}
