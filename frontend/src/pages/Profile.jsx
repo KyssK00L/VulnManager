@@ -102,7 +102,7 @@ export default function Profile() {
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
-            <p className="mt-4 text-gray-600">Loading profile...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
           </div>
         </div>
       </Layout>
@@ -133,23 +133,23 @@ export default function Profile() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Username */}
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-blue-100 p-3">
-                <User className="h-6 w-6 text-blue-600" />
+              <div className="rounded-lg bg-blue-100 dark:bg-blue-900/30 p-3">
+                <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Username</p>
-                <p className="mt-1 text-base font-medium text-gray-900">{user.username}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</p>
+                <p className="mt-1 text-base font-medium text-gray-900 dark:text-gray-100">{user.username}</p>
               </div>
             </div>
 
             {/* Email */}
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-purple-100 p-3">
-                <Mail className="h-6 w-6 text-purple-600" />
+              <div className="rounded-lg bg-purple-100 dark:bg-purple-900/30 p-3">
+                <Mail className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Email</p>
-                <p className="mt-1 text-base font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
+                <p className="mt-1 text-base font-medium text-gray-900 dark:text-gray-100">
                   {user.email || 'Not set'}
                 </p>
               </div>
@@ -157,26 +157,26 @@ export default function Profile() {
 
             {/* Role */}
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-red-100 p-3">
-                <Shield className="h-6 w-6 text-red-600" />
+              <div className="rounded-lg bg-red-100 dark:bg-red-900/30 p-3">
+                <Shield className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Role</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Role</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className={`badge ${getRoleBadgeColor(user.role)}`}>{user.role}</span>
                 </div>
-                <p className="mt-1 text-xs text-gray-600">{getRoleDescription(user.role)}</p>
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{getRoleDescription(user.role)}</p>
               </div>
             </div>
 
             {/* Member Since */}
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-green-100 p-3">
-                <Calendar className="h-6 w-6 text-green-600" />
+              <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-3">
+                <Calendar className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Member Since</p>
-                <p className="mt-1 text-base font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</p>
+                <p className="mt-1 text-base font-medium text-gray-900 dark:text-gray-100">
                   {new Date(user.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -278,20 +278,20 @@ export default function Profile() {
         {/* Change Password Card */}
         <div className="card mb-6 p-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-yellow-100 p-3">
-              <Key className="h-6 w-6 text-yellow-600" />
+            <div className="rounded-lg bg-yellow-100 dark:bg-yellow-900/30 p-3">
+              <Key className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
-              <p className="text-sm text-gray-600">Update your password to keep your account secure</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Change Password</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Update your password to keep your account secure</p>
             </div>
           </div>
 
           <form onSubmit={handleChangePassword} className="max-w-md space-y-4">
             {/* Current Password */}
             <div>
-              <label htmlFor="current_password" className="mb-2 block text-sm font-medium text-gray-700">
-                Current Password <span className="text-red-500">*</span>
+              <label htmlFor="current_password" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Current Password <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 id="current_password"
@@ -308,8 +308,8 @@ export default function Profile() {
 
             {/* New Password */}
             <div>
-              <label htmlFor="new_password" className="mb-2 block text-sm font-medium text-gray-700">
-                New Password <span className="text-red-500">*</span>
+              <label htmlFor="new_password" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                New Password <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 id="new_password"
@@ -320,15 +320,15 @@ export default function Profile() {
                 placeholder="Minimum 8 characters"
                 autoComplete="new-password"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Password must be at least 8 characters long
               </p>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirm_password" className="mb-2 block text-sm font-medium text-gray-700">
-                Confirm New Password <span className="text-red-500">*</span>
+              <label htmlFor="confirm_password" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Confirm New Password <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 id="confirm_password"
@@ -367,10 +367,10 @@ export default function Profile() {
         </div>
 
         {/* Security Note */}
-        <div className="mt-6 rounded-lg bg-blue-50 p-4">
+        <div className="mt-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
           <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 flex-shrink-0 text-blue-600" />
-            <div className="text-sm text-blue-800">
+            <Shield className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+            <div className="text-sm text-blue-800 dark:text-blue-200">
               <p className="font-medium">Security Tips</p>
               <ul className="mt-2 list-inside list-disc space-y-1 text-xs">
                 <li>Use a strong password with a mix of letters, numbers, and symbols</li>
