@@ -60,6 +60,7 @@ async def login(
         samesite="lax",
         max_age=max_age,
         secure=settings.is_production,
+        path="/",
     )
 
     audit_log(
@@ -89,7 +90,7 @@ async def logout(
     Logout user by clearing session cookie.
     """
     session = await invalidate_session(db, session_id)
-    response.delete_cookie(key="session_id")
+    response.delete_cookie(key="session_id", path="/")
     audit_log(
         "auth.logout",
         actor_id=str(session.user_id) if session else None,
