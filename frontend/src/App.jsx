@@ -5,6 +5,8 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Tokens from './pages/Tokens'
 import TypesManager from './pages/TypesManager'
+import UsersManager from './pages/UsersManager'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -32,6 +34,22 @@ function App() {
           element={
             <ProtectedRoute requireAdmin>
               <TypesManager />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute requireAdmin>
+              <UsersManager />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
