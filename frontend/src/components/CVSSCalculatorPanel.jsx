@@ -454,8 +454,8 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
         <div className="p-6">
           {/* Severity Legend */}
           <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="mb-2 text-xs font-semibold text-gray-700">Severity Ratings:</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="mb-3 text-xs font-semibold text-gray-700">Severity Ratings:</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
               {Object.entries({
                 'None': '0.0',
                 'Low': '0.1 - 3.9',
@@ -465,9 +465,10 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
               }).map(([severity, range]) => (
                 <div
                   key={severity}
-                  className={`rounded-full border-2 px-3 py-1 text-xs font-semibold ${SEVERITY_COLORS[severity]}`}
+                  className={`rounded-lg border-2 px-3 py-2 text-center ${SEVERITY_COLORS[severity]}`}
                 >
-                  {severity} ({range})
+                  <div className="text-xs font-bold">{severity}</div>
+                  <div className="text-[10px] font-medium opacity-75">{range}</div>
                 </div>
               ))}
             </div>
