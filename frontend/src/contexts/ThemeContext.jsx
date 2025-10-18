@@ -11,85 +11,42 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-  // Get initial theme from localStorage or default to 'system'
+  // Get initial theme from localStorage or default to 'light'
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('theme')
-    return stored || 'system'
+    return stored === 'dark' || stored === 'light' ? stored : 'light'
   })
-
-  // Detect system preference
-  const getSystemTheme = () => {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
-    return 'light'
-  }
-
-  // Get effective theme (resolve 'system' to actual theme)
-  const getEffectiveTheme = () => {
-    if (theme === 'system') {
-      return getSystemTheme()
-    }
-    return theme
-  }
 
   // Apply theme to document
   useEffect(() => {
-    const effectiveTheme = getEffectiveTheme()
     const root = window.document.documentElement
 
     // Remove both classes first
     root.classList.remove('light', 'dark')
 
-    // Add the effective theme class
-    root.classList.add(effectiveTheme)
+    // Add the theme class
+    root.classList.add(theme)
 
     // Store in localStorage
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  // Listen for system theme changes when in 'system' mode
-  useEffect(() => {
-    if (theme !== 'system') return
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-    const handleChange = () => {
-      const effectiveTheme = getSystemTheme()
-      const root = window.document.documentElement
-      root.classList.remove('light', 'dark')
-      root.classList.add(effectiveTheme)
-    }
-
-    // Modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange)
-      return () => mediaQuery.removeEventListener('change', handleChange)
-    }
-    // Fallback for older browsers
-    else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleChange)
-      return () => mediaQuery.removeListener(handleChange)
-    }
-  }, [theme])
-
   const setLightMode = () => setTheme('light')
   const setDarkMode = () => setTheme('dark')
-  const setSystemMode = () => setTheme('system')
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
 
-  const isDark = getEffectiveTheme() === 'dark'
-  const isLight = getEffectiveTheme() === 'light'
+  const isDark = theme === 'dark'
+  const isLight = theme === 'light'
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        effectiveTheme: getEffectiveTheme(),
         isDark,
         isLight,
         setLightMode,
         setDarkMode,
-        setSystemMode,
+        toggleTheme,
         setTheme,
       }}
     >

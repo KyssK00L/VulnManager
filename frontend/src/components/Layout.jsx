@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import NotificationCenter from './NotificationCenter'
+import ThemeToggle from './ThemeToggle'
 import {
   Menu,
   X,
@@ -30,6 +31,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NotificationCenter />
+      <ThemeToggle />
       {/* Mobile header */}
       <header className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-sm lg:hidden border-b border-gray-200 dark:border-gray-700">
         <div className="flex h-16 items-center justify-between px-4">
