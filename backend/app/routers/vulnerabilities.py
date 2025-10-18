@@ -47,7 +47,11 @@ async def search_vulnerabilities(
     level: VulnerabilityLevel | None = Query(None, description="Filter by severity level"),
     scope: str | None = Query(None, description="Filter by scope (substring)"),
     protocol: str | None = Query(None, description="Filter by protocol/interface (substring)"),
-    vuln_type: VulnerabilityType | None = Query(None, alias="type", description="Filter by type"),
+    # Single type (backward compatible)
+    vuln_type: VulnerabilityType | None = Query(None, alias="type", description="Filter by single type (backward compatible)"),
+    # Multi-type filters: support both types and types[] query styles
+    types: list[VulnerabilityType] | None = Query(None, description="Filter by multiple types (repeated 'types' params)"),
+    types_bracket: list[VulnerabilityType] | None = Query(None, alias="types[]", description="Filter by multiple types (types[] style)"),
     min_score: float | None = Query(None, ge=0.0, le=10.0, description="Minimum CVSS score"),
     max_score: float | None = Query(None, ge=0.0, le=10.0, description="Maximum CVSS score"),
     page: int = Query(1, ge=1, description="Page number"),
@@ -85,8 +89,17 @@ async def search_vulnerabilities(
     if protocol:
         query = query.where(Vulnerability.protocol_interface.ilike(f"%{protocol}%"))
 
-    if vuln_type:
-        query = query.where(Vulnerability.vuln_type == vuln_type)
+    # Consolidate type filters (multi-type takes precedence)
+    type_filters: list[VulnerabilityType] | None = None
+    if types_bracket:
+        type_filters = list(types_bracket)
+    elif types:
+        type_filters = list(types)
+    elif vuln_type:
+        type_filters = [vuln_type]
+
+    if type_filters:
+        query = query.where(Vulnerability.vuln_type.in_(type_filters))
 
     if min_score is not None:
         query = query.where(Vulnerability.cvss_score >= min_score)
