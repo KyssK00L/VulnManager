@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { tokensApi } from '../lib/api'
 import { X } from 'lucide-react'
@@ -7,6 +7,18 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
   const [label, setLabel] = useState('')
   const [scopes, setScopes] = useState(['read:vulns', 'export:doc'])
   const [expiresInDays, setExpiresInDays] = useState(90)
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [onClose])
 
   const createMutation = useMutation({
     mutationFn: tokensApi.create,

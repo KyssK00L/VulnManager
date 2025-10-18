@@ -266,6 +266,20 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
     }
   }, [])
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose])
+
   const calculateScore = async () => {
     setLoading(true)
     try {

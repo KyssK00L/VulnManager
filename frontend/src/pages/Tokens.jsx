@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { tokensApi } from '../lib/api'
@@ -10,6 +10,20 @@ export default function Tokens() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newToken, setNewToken] = useState(null)
   const queryClient = useQueryClient()
+
+  // Handle Escape key to close token display modal
+  useEffect(() => {
+    if (!newToken) return
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setNewToken(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [newToken])
 
   const { data: tokens, isLoading } = useQuery({
     queryKey: ['tokens'],
