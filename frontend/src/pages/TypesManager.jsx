@@ -184,7 +184,7 @@ export default function TypesManager() {
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
-            <p className="mt-4 text-gray-600">Loading types...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading types...</p>
           </div>
         </div>
       </Layout>
@@ -198,8 +198,8 @@ export default function TypesManager() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Vulnerability Types</h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Vulnerability Types</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Manage vulnerability categories, icons, and metadata
             </p>
           </div>
@@ -217,7 +217,7 @@ export default function TypesManager() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search types..."
@@ -246,34 +246,34 @@ export default function TypesManager() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-3">
-              <Package className="h-6 w-6 text-blue-600" />
+            <div className="rounded-lg bg-blue-100 dark:bg-blue-900/30 p-3">
+              <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total Types</p>
-              <p className="text-2xl font-bold text-gray-900">{allTypes.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Types</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{allTypes.length}</p>
             </div>
           </div>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-purple-100 p-3">
-              <Package className="h-6 w-6 text-purple-600" />
+            <div className="rounded-lg bg-purple-100 dark:bg-purple-900/30 p-3">
+              <Package className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Categories</p>
-              <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Categories</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{categories.length}</p>
             </div>
           </div>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-green-100 p-3">
-              <Package className="h-6 w-6 text-green-600" />
+            <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-3">
+              <Package className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Filtered</p>
-              <p className="text-2xl font-bold text-gray-900">{filteredTypes.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Filtered</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filteredTypes.length}</p>
             </div>
           </div>
         </div>
@@ -281,12 +281,12 @@ export default function TypesManager() {
 
       {/* Create/Edit Form */}
       {(isCreating || editingType) && (
-        <div className="card mb-6 border-2 border-primary-200 p-6">
+        <div className="card mb-6 border-2 border-primary-200 dark:border-primary-800 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {isCreating ? 'Create New Type' : 'Edit Type'}
             </h3>
-            <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600">
+            <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -294,8 +294,8 @@ export default function TypesManager() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Name */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Name <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Name <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -306,14 +306,14 @@ export default function TypesManager() {
                 disabled={!isCreating}
               />
               {!isCreating && (
-                <p className="mt-1 text-xs text-gray-500">Name cannot be changed after creation</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Name cannot be changed after creation</p>
               )}
             </div>
 
             {/* Category */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Category <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Category <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <select
                 value={formData.category}
@@ -330,8 +330,8 @@ export default function TypesManager() {
 
             {/* Icon */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Icon <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Icon <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <select
                 value={formData.icon}
@@ -352,7 +352,7 @@ export default function TypesManager() {
                 const IconComponent = LucideIcons[formData.icon]
                 return IconComponent ? (
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Preview:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Preview:</span>
                     <IconComponent className={`h-6 w-6 ${formData.color}`} />
                   </div>
                 ) : null
@@ -361,8 +361,8 @@ export default function TypesManager() {
 
             {/* Color */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Color <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Color <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <select
                 value={formData.color}
@@ -379,8 +379,8 @@ export default function TypesManager() {
 
             {/* Description */}
             <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Description <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Description <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <textarea
                 value={formData.description}
@@ -425,7 +425,7 @@ export default function TypesManager() {
       <div className="space-y-6">
         {Object.entries(groupedTypes).map(([category, types]) => (
           <div key={category}>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900">{category}</h2>
+            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{category}</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {types.map((type) => {
                 const IconComponent = LucideIcons[type.icon]
@@ -444,16 +444,16 @@ export default function TypesManager() {
                         {IconComponent ? (
                           <IconComponent className={`h-8 w-8 ${type.color}`} />
                         ) : (
-                          <div className="h-8 w-8 rounded bg-gray-200" />
+                          <div className="h-8 w-8 rounded bg-gray-200 dark:bg-gray-700" />
                         )}
                       </div>
 
                       {/* Content */}
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{type.name}</h3>
-                        <p className="mt-1 text-sm text-gray-600">{type.description}</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{type.name}</h3>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{type.description}</p>
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                          <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300">
                             {type.icon}
                           </span>
                           <span className={`text-xs font-medium ${type.color}`}>
@@ -466,7 +466,7 @@ export default function TypesManager() {
                       <div className="flex flex-col gap-1">
                         <button
                           onClick={() => handleEdit(type)}
-                          className="rounded p-1.5 text-blue-600 transition-colors hover:bg-blue-50"
+                          className="rounded p-1.5 text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30"
                           title="Edit type"
                         >
                           <Edit2 className="h-4 w-4" />
@@ -475,7 +475,7 @@ export default function TypesManager() {
                           <button
                             onClick={() => deleteMutation.mutate(type.name)}
                             disabled={deleteMutation.isPending}
-                            className="rounded p-1.5 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                            className="rounded p-1.5 text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
                             title="Delete custom type"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -494,9 +494,9 @@ export default function TypesManager() {
       {/* Empty state */}
       {filteredTypes.length === 0 && (
         <div className="card p-12 text-center">
-          <Package className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No types found</h3>
-          <p className="mt-2 text-sm text-gray-600">
+          <Package className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No types found</h3>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Try adjusting your search or filter criteria
           </p>
         </div>
