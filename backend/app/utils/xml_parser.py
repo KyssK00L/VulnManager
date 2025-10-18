@@ -24,7 +24,7 @@ def parse_vulnerabilities_xml(xml_content: bytes) -> list[dict[str, Any]]:
             <Description>...</Description>
             <Risk>...</Risk>
             <Recommendation>...</Recommendation>
-            <Type>Technical|Organizational|Physical</Type>
+            <Type>Web Application|API|Network|Active Directory|...</Type>
         </vulnerability>
     </vulnerabilities>
 
@@ -88,13 +88,18 @@ def parse_vulnerabilities_xml(xml_content: bytes) -> list[dict[str, Any]]:
             elif tag == "Recommendation":
                 vuln_data["recommendation"] = text.strip()
             elif tag == "Type":
-                # Map to enum
-                type_map = {
-                    "Technical": VulnerabilityType.TECHNICAL,
-                    "Organizational": VulnerabilityType.ORGANIZATIONAL,
-                    "Physical": VulnerabilityType.PHYSICAL,
-                }
-                vuln_data["type"] = type_map.get(text.strip(), VulnerabilityType.TECHNICAL)
+                # Map string to enum - try to match by value
+                type_text = text.strip()
+                try:
+                    # Try to find enum by value (name)
+                    vuln_data["type"] = VulnerabilityType(type_text)
+                except ValueError:
+                    # If not found, raise clear error
+                    valid_types = [t.value for t in VulnerabilityType]
+                    raise ValueError(
+                        f"Invalid vulnerability type '{type_text}'. "
+                        f"Valid types are: {', '.join(valid_types)}"
+                    )
 
         # Validate required fields
         required_fields = ["name", "level", "scope", "protocol_interface", "description", "risk", "recommendation", "type"]

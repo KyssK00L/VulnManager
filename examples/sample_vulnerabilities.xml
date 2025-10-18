@@ -18,7 +18,7 @@
 3. Appliquer le principe du moindre privilège pour les comptes de base de données
 4. Mettre en place un WAF (Web Application Firewall)
 5. Effectuer des revues de code et tests de sécurité réguliers</Recommendation>
-    <Type>Technical</Type>
+    <Type>Web Application</Type>
   </vulnerability>
 
   <vulnerability>
@@ -40,7 +40,7 @@
 3. Utiliser des frameworks modernes avec protection XSS intégrée
 4. Valider et filtrer les entrées côté serveur
 5. Utiliser HTTPOnly et Secure flags pour les cookies de session</Recommendation>
-    <Type>Technical</Type>
+    <Type>Web Application</Type>
   </vulnerability>
 
   <vulnerability>
@@ -65,7 +65,7 @@ Cela peut conduire à des accès non autorisés et des compromissions de comptes
 3. Définir une durée de validité maximale (ex: 90 jours)
 4. Bloquer les comptes après 5 tentatives échouées
 5. Former les utilisateurs aux bonnes pratiques de sécurité</Recommendation>
-    <Type>Organizational</Type>
+    <Type>Authentication</Type>
   </vulnerability>
 
   <vulnerability>
@@ -93,7 +93,7 @@ Ces logs sont stockés sans chiffrement et sont accessibles à plusieurs adminis
 5. Restreindre l'accès aux logs (principe du moindre privilège)
 6. Auditer régulièrement le contenu des logs
 7. Utiliser un SIEM pour centraliser et sécuriser les logs</Recommendation>
-    <Type>Technical</Type>
+    <Type>Linux</Type>
   </vulnerability>
 
   <vulnerability>
@@ -119,7 +119,7 @@ Ces logs sont stockés sans chiffrement et sont accessibles à plusieurs adminis
 6. Mettre en place une procédure d'accompagnement pour les visiteurs
 7. Sécuriser physiquement les serveurs (racks verrouillés)
 8. Désactiver les ports USB sur les serveurs critiques</Recommendation>
-    <Type>Physical</Type>
+    <Type>Physical Security</Type>
   </vulnerability>
 
   <vulnerability>
@@ -142,6 +142,6 @@ Ces logs sont stockés sans chiffrement et sont accessibles à plusieurs adminis
 4. Utiliser des certificats avec une longueur de clé appropriée (minimum 2048 bits RSA)
 5. Tester la configuration SSL avec SSL Labs
 6. Implémenter Certificate Transparency monitoring</Recommendation>
-    <Type>Technical</Type>
+    <Type>Cryptography</Type>
   </vulnerability>
 </vulnerabilities>

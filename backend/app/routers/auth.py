@@ -29,14 +29,14 @@ async def login(
 
     Sets an HttpOnly session cookie on successful login.
     """
-    # Find user by email
-    result = await db.execute(select(User).where(User.email == credentials.email))
+    # Find user by username
+    result = await db.execute(select(User).where(User.username == credentials.username))
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect username or password",
         )
 
     if not user.is_active:

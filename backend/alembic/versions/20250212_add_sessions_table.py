@@ -11,16 +11,9 @@ down_revision: str | None = None
 branch_labels: Sequence[str] | None = None
 depends_on: Sequence[str] | None = None
 
-user_role_enum_type = sa.Enum("viewer", "editor", "admin", name="userrole")
-user_role_enum = sa.Enum(
-    "viewer", "editor", "admin", name="userrole", create_type=False
-)
-
 
 def upgrade() -> None:
-    bind = op.get_bind()
-    user_role_enum_type.create(bind, checkfirst=True)
-
+    # Create the user table with role enum
     op.create_table(
         "users",
         sa.Column("id", sa.dialects.postgresql.UUID(as_uuid=True), primary_key=True),
@@ -29,7 +22,7 @@ def upgrade() -> None:
         sa.Column("password_hash", sa.String(length=255), nullable=False),
         sa.Column(
             "role",
-            user_role_enum,
+            sa.Enum("viewer", "editor", "admin", name="userrole"),
             nullable=False,
             server_default="viewer",
         ),

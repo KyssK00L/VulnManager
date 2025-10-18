@@ -4,7 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Tokens from './pages/Tokens'
-import CVSSCalculatorPage from './pages/CVSSCalculatorPage'
+import TypesManager from './pages/TypesManager'
 
 function App() {
   return (
@@ -28,10 +28,10 @@ function App() {
           }
         />
         <Route
-          path="/cvss"
+          path="/types"
           element={
-            <ProtectedRoute>
-              <CVSSCalculatorPage />
+            <ProtectedRoute requireAdmin>
+              <TypesManager />
             </ProtectedRoute>
           }
         />

@@ -117,7 +117,7 @@ docker-compose exec api python scripts/init_db.py
 ```
 
 Credentials par défaut :
-- Email: `admin@vulnmanager.local`
+- Username: `admin`
 - Password: `admin123`
 
 **⚠️ IMPORTANT**: Changez le mot de passe admin après la première connexion !
