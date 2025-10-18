@@ -557,14 +557,6 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
               {loading ? 'Calculating...' : 'Apply CVSS Score'}
             </button>
           </div>
-
-          {/* Debug info - remove in production */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-2 rounded bg-gray-100 p-2 text-xs text-gray-600">
-              Debug: result={result ? 'exists' : 'null'}, loading={loading.toString()},
-              disabled={(!result || loading).toString()}
-            </div>
-          )}
         </div>
       </div>
 
