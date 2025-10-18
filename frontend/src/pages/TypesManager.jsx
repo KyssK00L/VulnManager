@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Edit2, Trash2, Save, X, Package, Search, ChevronDown } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save, X, Package, Search, ChevronDown, Network, Server, Globe, Database, Cloud, Shield, Cpu } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { notify } from '../lib/notifications'
 import axios from 'axios'
@@ -68,6 +68,21 @@ export default function TypesManager() {
   const isCategoryExpanded = (category) => {
     // Categories NOT in the set are expanded (default state)
     return !expandedCategories.has(category)
+  }
+
+  // Category icon mapping
+  const getCategoryIcon = (category) => {
+    const iconMap = {
+      'Infrastructure & Network': Network,
+      'Systems': Server,
+      'Web & Applications': Globe,
+      'Databases': Database,
+      'Cloud': Cloud,
+      'Security Services': Shield,
+      'Hardware & Embedded': Cpu,
+      'Others': Package,
+    }
+    return iconMap[category] || Package
   }
 
   const handleEdit = (type) => {
@@ -449,12 +464,13 @@ export default function TypesManager() {
       <div className="space-y-6">
         {Object.entries(groupedTypes).map(([category, types]) => {
           const isExpanded = isCategoryExpanded(category)
+          const CategoryIcon = getCategoryIcon(category)
 
           return (
             <div key={category}>
               {/* Category Header - Clickable */}
               <div
-                className="mb-3 flex items-center gap-2 cursor-pointer select-none group"
+                className="mb-3 flex items-center gap-3 cursor-pointer select-none group"
                 onClick={() => toggleCategory(category)}
               >
                 <ChevronDown
@@ -462,6 +478,9 @@ export default function TypesManager() {
                     isExpanded ? '' : '-rotate-90'
                   }`}
                 />
+                <div className="rounded-lg bg-primary-100 dark:bg-primary-900/30 p-2">
+                  <CategoryIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {category}
                 </h2>
