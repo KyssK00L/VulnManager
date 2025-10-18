@@ -48,14 +48,14 @@ export default function Tokens() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <div className="bg-white shadow-sm">
+        <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 py-6 lg:px-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">API Tokens</h1>
-                <p className="mt-1 text-sm text-gray-600">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">API Tokens</h1>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   Manage tokens for Word macro authentication
                 </p>
               </div>
@@ -74,10 +74,10 @@ export default function Tokens() {
         <div className="p-4 lg:p-8">
           {/* Instructions */}
           <div className="card mb-6 p-6">
-            <h2 className="mb-2 text-lg font-semibold text-gray-900">
+            <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
               Using tokens with Word macros
             </h2>
-            <ol className="list-inside list-decimal space-y-1 text-sm text-gray-600">
+            <ol className="list-inside list-decimal space-y-1 text-sm text-gray-600 dark:text-gray-400">
               <li>Create a token with required scopes (read:vulns, export:doc)</li>
               <li>Copy the token immediately (it will only be shown once)</li>
               <li>In Word, open VulnManager settings and paste the token</li>
@@ -92,7 +92,7 @@ export default function Tokens() {
             </div>
           ) : tokens?.length === 0 ? (
             <div className="card py-12 text-center">
-              <p className="text-gray-500">No tokens yet. Create your first token above.</p>
+              <p className="text-gray-500 dark:text-gray-400">No tokens yet. Create your first token above.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -101,16 +101,16 @@ export default function Tokens() {
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                           {token.label}
                         </h3>
                         {token.is_valid ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <XCircle className="h-5 w-5 text-red-600" />
+                          <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                         )}
                       </div>
-                      <div className="mt-2 space-y-1 text-sm text-gray-600">
+                      <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                         <p>
                           <span className="font-medium">Scopes:</span>{' '}
                           {token.scopes.join(', ')}
@@ -130,7 +130,7 @@ export default function Tokens() {
                           </p>
                         )}
                         {token.revoked_at && (
-                          <p className="text-red-600">
+                          <p className="text-red-600 dark:text-red-400">
                             <span className="font-medium">Revoked:</span>{' '}
                             {new Date(token.revoked_at).toLocaleDateString()}
                           </p>
@@ -178,10 +178,10 @@ export default function Tokens() {
         {newToken && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="card w-full max-w-lg p-6">
-              <h2 className="mb-4 text-xl font-bold text-gray-900">
+              <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
                 Token Created Successfully
               </h2>
-              <p className="mb-4 text-sm text-gray-600">
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 Copy this token now. You won't be able to see it again!
               </p>
               <div className="mb-4 flex gap-2">

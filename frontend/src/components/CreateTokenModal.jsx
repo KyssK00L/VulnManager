@@ -38,7 +38,7 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="card w-full max-w-lg p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Create API Token</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Create API Token</h2>
           <button onClick={onClose} className="btn-ghost p-2">
             <X className="h-5 w-5" />
           </button>
@@ -46,7 +46,7 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="label" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="label" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Label
             </label>
             <input
@@ -61,7 +61,7 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">Scopes</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Scopes</label>
             <div className="space-y-2">
               {['read:vulns', 'export:doc', 'write:vulns'].map((scope) => (
                 <label key={scope} className="flex items-center gap-2">
@@ -71,14 +71,14 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
                     onChange={() => toggleScope(scope)}
                     className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-sm text-gray-700">{scope}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{scope}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label htmlFor="expires" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="expires" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Expires in (days)
             </label>
             <input
@@ -107,7 +107,7 @@ export default function CreateTokenModal({ onClose, onSuccess }) {
           </div>
 
           {createMutation.isError && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-red-600 dark:text-red-400">
               Error: {createMutation.error?.response?.data?.detail || 'Failed to create token'}
             </p>
           )}
