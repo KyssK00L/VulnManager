@@ -24,21 +24,21 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 px-4">
       <div className="w-full max-w-md">
         <div className="card p-8">
           <div className="mb-8 text-center">
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
-              <Shield className="h-8 w-8 text-primary-600" />
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
+              <Shield className="h-8 w-8 text-primary-600 dark:text-primary-400" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">VulnManager</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">VulnManager</h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Vulnerability management system
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 flex items-start gap-3 rounded-lg bg-red-50 p-4 text-sm text-red-800">
+            <div className="mb-4 flex items-start gap-3 rounded-lg bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <p>{error}</p>
             </div>
@@ -46,7 +46,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Username
               </label>
               <input
@@ -62,7 +62,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <input
