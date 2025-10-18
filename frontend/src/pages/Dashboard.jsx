@@ -124,12 +124,12 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <div className="sticky top-0 z-40 bg-white shadow-sm lg:top-0">
+        <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-sm lg:top-0 border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 py-4 lg:px-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">Vulnerabilities</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Vulnerabilities</h1>
               <div className="flex gap-2">
                 <label className="btn btn-secondary cursor-pointer">
                   <Upload className="h-5 w-5" />
@@ -157,7 +157,7 @@ export default function Dashboard() {
             {/* Search bar */}
             <div className="mt-4 flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search vulnerabilities..."
@@ -192,17 +192,17 @@ export default function Dashboard() {
             </div>
           ) : vulnerabilities?.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-gray-500">No vulnerabilities found</p>
+              <p className="text-gray-500 dark:text-gray-400">No vulnerabilities found</p>
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between pb-4 text-sm text-gray-600">
+              <div className="flex items-center justify-between pb-4 text-sm text-gray-600 dark:text-gray-400">
                 <span>
                   Showing {rangeStart.toLocaleString()}–{rangeEnd.toLocaleString()} of {total.toLocaleString()}{' '}
                   vulnerabilities
                 </span>
                 {isFetching && (
-                  <span className="italic text-gray-400">Refreshing…</span>
+                  <span className="italic text-gray-400 dark:text-gray-500">Refreshing…</span>
                 )}
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -224,7 +224,7 @@ export default function Dashboard() {
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Page {page} of {totalPages}
                   </span>
                   <button
