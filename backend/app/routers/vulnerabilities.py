@@ -134,6 +134,43 @@ async def search_vulnerabilities(
     )
 
 
+# =============================================================================
+# Word Integration Endpoints (use API token auth) - MOVED HERE FOR ROUTE PRIORITY
+# =============================================================================
+
+
+@router.get("/bulk", response_model=list[VulnerabilityInfo])
+async def get_bulk_vulnerabilities(
+    updated_since: str | None = Query(None, description="ISO 8601 datetime"),
+    db: AsyncSession = Depends(get_db),
+    token: ApiToken = Depends(require_scope("read:vulns")),
+):
+    """
+    Get all vulnerabilities for Word macro cache (requires API token with read:vulns scope).
+
+    Optionally filter by updated_since to get only recent changes.
+    """
+    query = select(Vulnerability)
+
+    # Filter by updated_since if provided
+    if updated_since:
+        try:
+            since_dt = datetime.fromisoformat(updated_since.replace("Z", "+00:00"))
+            query = query.where(Vulnerability.updated_at >= since_dt)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid datetime format. Use ISO 8601 (e.g., 2024-01-01T00:00:00Z)",
+            )
+
+    query = query.order_by(Vulnerability.name.asc())
+
+    result = await db.execute(query)
+    vulnerabilities = result.scalars().all()
+
+    return [VulnerabilityInfo.model_validate(v) for v in vulnerabilities]
+
+
 @router.get("/{vuln_id}", response_model=VulnerabilityInfo)
 async def get_vulnerability(
     vuln_id: UUID,
@@ -309,43 +346,6 @@ async def get_vulnerability_history(
         }
         for h in history
     ]
-
-
-# =============================================================================
-# Word Integration Endpoints (use API token auth)
-# =============================================================================
-
-
-@router.get("/bulk", response_model=list[VulnerabilityInfo])
-async def get_bulk_vulnerabilities(
-    updated_since: str | None = Query(None, description="ISO 8601 datetime"),
-    db: AsyncSession = Depends(get_db),
-    token: ApiToken = Depends(require_scope("read:vulns")),
-):
-    """
-    Get all vulnerabilities for Word macro cache (requires API token with read:vulns scope).
-
-    Optionally filter by updated_since to get only recent changes.
-    """
-    query = select(Vulnerability)
-
-    # Filter by updated_since if provided
-    if updated_since:
-        try:
-            since_dt = datetime.fromisoformat(updated_since.replace("Z", "+00:00"))
-            query = query.where(Vulnerability.updated_at >= since_dt)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid datetime format. Use ISO 8601 (e.g., 2024-01-01T00:00:00Z)",
-            )
-
-    query = query.order_by(Vulnerability.name.asc())
-
-    result = await db.execute(query)
-    vulnerabilities = result.scalars().all()
-
-    return [VulnerabilityInfo.model_validate(v) for v in vulnerabilities]
 
 
 @router.get("/{vuln_id}/exportdoc", response_model=VulnerabilityExportDoc)
