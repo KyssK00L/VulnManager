@@ -452,14 +452,6 @@ export default function TypesManager() {
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 dark:text-gray-100">{type.name}</h3>
                         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{type.description}</p>
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300">
-                            {type.icon}
-                          </span>
-                          <span className={`text-xs font-medium ${type.color}`}>
-                            {type.color.replace('text-', '')}
-                          </span>
-                        </div>
                       </div>
 
                       {/* Actions */}
