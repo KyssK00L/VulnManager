@@ -214,7 +214,7 @@ export default function UsersManager() {
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
-            <p className="mt-4 text-gray-600">Loading users...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading users...</p>
           </div>
         </div>
       </Layout>
@@ -228,8 +228,8 @@ export default function UsersManager() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-              <p className="mt-1 text-sm text-gray-600">Manage users, roles, and permissions</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage users, roles, and permissions</p>
             </div>
             <button onClick={handleCreate} className="btn btn-primary flex items-center gap-2">
               <UserPlus className="h-5 w-5" />
@@ -242,7 +242,7 @@ export default function UsersManager() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search users..."
@@ -280,60 +280,60 @@ export default function UsersManager() {
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-100 p-3">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="rounded-lg bg-blue-100 dark:bg-blue-900/30 p-3">
+                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
               </div>
             </div>
           </div>
 
           <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-green-100 p-3">
-                <Power className="h-6 w-6 text-green-600" />
+              <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-3">
+                <Power className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Active</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.active}</p>
               </div>
             </div>
           </div>
 
           <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-red-100 p-3">
-                <Shield className="h-6 w-6 text-red-600" />
+              <div className="rounded-lg bg-red-100 dark:bg-red-900/30 p-3">
+                <Shield className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Admins</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.admins}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Admins</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.admins}</p>
               </div>
             </div>
           </div>
 
           <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-purple-100 p-3">
-                <Edit2 className="h-6 w-6 text-purple-600" />
+              <div className="rounded-lg bg-purple-100 dark:bg-purple-900/30 p-3">
+                <Edit2 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Editors</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.editors}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Editors</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.editors}</p>
               </div>
             </div>
           </div>
 
           <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-gray-100 p-3">
-                <Users className="h-6 w-6 text-gray-600" />
+              <div className="rounded-lg bg-gray-100 dark:bg-gray-700/30 p-3">
+                <Users className="h-6 w-6 text-gray-600 dark:text-gray-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Viewers</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.viewers}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Viewers</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.viewers}</p>
               </div>
             </div>
           </div>
@@ -341,10 +341,10 @@ export default function UsersManager() {
 
         {/* Create Form */}
         {isCreating && (
-          <div className="card mb-6 border-2 border-primary-200 p-6">
+          <div className="card mb-6 border-2 border-primary-200 dark:border-primary-800 p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Create New User</h3>
-              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create New User</h3>
+              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -352,8 +352,8 @@ export default function UsersManager() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Username */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Username <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Username <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -362,13 +362,13 @@ export default function UsersManager() {
                   className="input w-full"
                   placeholder="e.g., john_doe"
                 />
-                <p className="mt-1 text-xs text-gray-500">Alphanumeric and underscores only</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Alphanumeric and underscores only</p>
               </div>
 
               {/* Full Name */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Full Name <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Full Name <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -381,8 +381,8 @@ export default function UsersManager() {
 
               {/* Password */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Password <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Password <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
                   type="password"
@@ -395,8 +395,8 @@ export default function UsersManager() {
 
               {/* Role */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Role <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Role <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <select
                   value={formData.role}
@@ -441,10 +441,10 @@ export default function UsersManager() {
 
         {/* Edit Form */}
         {editingUser && (
-          <div className="card mb-6 border-2 border-primary-200 p-6">
+          <div className="card mb-6 border-2 border-primary-200 dark:border-primary-800 p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
-              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit User</h3>
+              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -452,8 +452,8 @@ export default function UsersManager() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Full Name */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Full Name <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Full Name <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -465,8 +465,8 @@ export default function UsersManager() {
 
               {/* Role */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Role <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Role <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <select
                   value={editFormData.role}
@@ -490,9 +490,9 @@ export default function UsersManager() {
                     }
                     className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">Active User</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active User</span>
                 </label>
-                <p className="ml-8 mt-1 text-xs text-gray-500">
+                <p className="ml-8 mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Inactive users cannot log in
                 </p>
               </div>
@@ -529,17 +529,17 @@ export default function UsersManager() {
 
         {/* Change Password Form */}
         {changingPassword && (
-          <div className="card mb-6 border-2 border-yellow-200 p-6">
+          <div className="card mb-6 border-2 border-yellow-200 dark:border-yellow-800 p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
-              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Change Password</h3>
+              <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="max-w-md">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                New Password <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                New Password <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 type="password"
@@ -583,36 +583,36 @@ export default function UsersManager() {
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Created
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 text-sm font-medium text-primary-700 dark:text-primary-400">
                           {user.full_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{user.full_name}</div>
-                          <div className="text-sm text-gray-500">@{user.username}</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{user.full_name}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</div>
                         </div>
                       </div>
                     </td>
@@ -638,21 +638,21 @@ export default function UsersManager() {
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleEdit(user)}
-                          className="rounded p-1.5 text-blue-600 transition-colors hover:bg-blue-50"
+                          className="rounded p-1.5 text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30"
                           title="Edit user"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleChangePassword(user.id)}
-                          className="rounded p-1.5 text-yellow-600 transition-colors hover:bg-yellow-50"
+                          className="rounded p-1.5 text-yellow-600 dark:text-yellow-400 transition-colors hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
                           title="Change password"
                         >
                           <Key className="h-4 w-4" />
@@ -661,7 +661,7 @@ export default function UsersManager() {
                           <button
                             onClick={() => deleteMutation.mutate(user.id)}
                             disabled={deleteMutation.isPending}
-                            className="rounded p-1.5 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                            className="rounded p-1.5 text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
                             title="Delete user"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -677,9 +677,9 @@ export default function UsersManager() {
 
           {filteredUsers.length === 0 && (
             <div className="p-12 text-center">
-              <Users className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">No users found</h3>
-              <p className="mt-2 text-sm text-gray-600">
+              <Users className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+              <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No users found</h3>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Try adjusting your search or filter criteria
               </p>
             </div>
