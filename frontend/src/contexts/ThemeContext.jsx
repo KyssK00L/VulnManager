@@ -33,7 +33,14 @@ export const ThemeProvider = ({ children }) => {
 
   const setLightMode = () => setTheme('light')
   const setDarkMode = () => setTheme('dark')
-  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  const toggleTheme = () => {
+    console.log('toggleTheme function called, current theme:', theme)
+    setTheme(prev => {
+      const newTheme = prev === 'dark' ? 'light' : 'dark'
+      console.log('Setting new theme:', newTheme)
+      return newTheme
+    })
+  }
 
   const isDark = theme === 'dark'
   const isLight = theme === 'light'
