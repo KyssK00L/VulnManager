@@ -9,6 +9,8 @@ import {
   Key,
   LogOut,
   Package,
+  Users,
+  UserCircle,
 } from 'lucide-react'
 
 export default function Layout({ children }) {
@@ -20,6 +22,7 @@ export default function Layout({ children }) {
     { name: 'Vulnerabilities', href: '/', icon: Shield },
     ...(isAdmin ? [
       { name: 'Types Manager', href: '/types', icon: Package },
+      { name: 'Users', href: '/users', icon: Users },
       { name: 'API Tokens', href: '/tokens', icon: Key },
     ] : []),
   ]
@@ -76,6 +79,14 @@ export default function Layout({ children }) {
                   <p className="text-gray-500">{user.email}</p>
                 </div>
               </div>
+              <Link
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              >
+                <UserCircle className="h-5 w-5" />
+                Profile
+              </Link>
               <button
                 onClick={logout}
                 className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
@@ -128,13 +139,22 @@ export default function Layout({ children }) {
                 <p className="text-xs text-gray-500">{user.role}</p>
               </div>
             </div>
-            <button
-              onClick={logout}
-              className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
-            >
-              <LogOut className="h-5 w-5" />
-              Logout
-            </button>
+            <div className="mt-2 flex gap-2">
+              <Link
+                to="/profile"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              >
+                <UserCircle className="h-5 w-5" />
+                Profile
+              </Link>
+              <button
+                onClick={logout}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="h-5 w-5" />
+                Logout
+              </button>
+            </div>
           </div>
         </aside>
 
