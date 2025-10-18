@@ -115,6 +115,19 @@ export default function TypesManager() {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: async (typeName) => {
+      return axios.delete(`/api/types/${encodeURIComponent(typeName)}`)
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['vulnerabilityTypes'] })
+      notify(response.data.message, 'success')
+    },
+    onError: (error) => {
+      notify(`Failed to delete type: ${error.response?.data?.detail || error.message}`, 'error')
+    },
+  })
+
   const handleSave = async () => {
     if (!formData.name || !formData.icon || !formData.color || !formData.description) {
       notify('Please fill in all required fields', 'error')
@@ -458,13 +471,16 @@ export default function TypesManager() {
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
-                        <button
-                          onClick={() => notify('Delete feature coming soon', 'info')}
-                          className="rounded p-1.5 text-red-600 transition-colors hover:bg-red-50"
-                          title="Delete type"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {type.is_custom && (
+                          <button
+                            onClick={() => deleteMutation.mutate(type.name)}
+                            disabled={deleteMutation.isPending}
+                            className="rounded p-1.5 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                            title="Delete custom type"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

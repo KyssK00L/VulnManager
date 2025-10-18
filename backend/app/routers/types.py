@@ -206,3 +206,39 @@ async def update_vulnerability_type(
             "is_custom": True
         }
     }
+
+
+@router.delete("/{type_name}")
+async def delete_custom_type(
+    type_name: str,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_admin)
+):
+    """
+    Delete a custom vulnerability type (admin only).
+
+    Built-in types cannot be deleted.
+    """
+    # Check if it's a built-in type (cannot delete)
+    if type_name in VULNERABILITY_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete built-in types"
+        )
+
+    # Find custom type
+    result = await db.execute(
+        select(CustomVulnerabilityType).where(CustomVulnerabilityType.name == type_name)
+    )
+    custom_type = result.scalar_one_or_none()
+    if not custom_type:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Custom type '{type_name}' not found"
+        )
+
+    # Delete
+    await db.delete(custom_type)
+    await db.commit()
+
+    return {"message": f"Custom type '{type_name}' deleted successfully"}
