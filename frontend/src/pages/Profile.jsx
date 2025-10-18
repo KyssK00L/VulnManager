@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { User, Key, Shield, Calendar, Mail } from 'lucide-react'
+import { User, Key, Shield, Calendar, Mail, Sun, Moon, Monitor, Palette } from 'lucide-react'
 import { notify } from '../lib/notifications'
 import axios from 'axios'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Profile() {
   const { user } = useAuth()
+  const { theme, setLightMode, setDarkMode, setSystemMode } = useTheme()
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -112,19 +114,19 @@ export default function Profile() {
       <div className="mx-auto max-w-4xl p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="mt-1 text-sm text-gray-600">View your information and manage your account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">View your information and manage your account</p>
         </div>
 
         {/* Profile Information Card */}
         <div className="card mb-6 p-6">
           <div className="mb-6 flex items-center gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 text-3xl font-bold text-primary-700">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 text-3xl font-bold text-primary-700 dark:text-primary-400">
               {user.full_name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{user.full_name}</h2>
-              <p className="text-sm text-gray-600">@{user.username}</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.full_name}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">@{user.username}</p>
             </div>
           </div>
 
@@ -186,8 +188,95 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Appearance Settings Card */}
+        <div className="card mb-6 p-6">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="rounded-lg bg-indigo-100 dark:bg-indigo-900/30 p-3">
+              <Palette className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appearance</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Customize how VulnManager looks
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</p>
+
+            <div className="space-y-2">
+              {/* Light Mode */}
+              <label
+                className={`flex items-center gap-3 rounded-lg border-2 p-3 cursor-pointer transition-colors ${
+                  theme === 'light'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === 'light'}
+                  onChange={() => setLightMode()}
+                  className="h-4 w-4 text-primary-600"
+                />
+                <Sun className="h-5 w-5 text-yellow-500" />
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Light</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Bright and clear</p>
+                </div>
+              </label>
+
+              {/* Dark Mode */}
+              <label
+                className={`flex items-center gap-3 rounded-lg border-2 p-3 cursor-pointer transition-colors ${
+                  theme === 'dark'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === 'dark'}
+                  onChange={() => setDarkMode()}
+                  className="h-4 w-4 text-primary-600"
+                />
+                <Moon className="h-5 w-5 text-blue-500" />
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Dark</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Easy on the eyes</p>
+                </div>
+              </label>
+
+              {/* System Mode */}
+              <label
+                className={`flex items-center gap-3 rounded-lg border-2 p-3 cursor-pointer transition-colors ${
+                  theme === 'system'
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === 'system'}
+                  onChange={() => setSystemMode()}
+                  className="h-4 w-4 text-primary-600"
+                />
+                <Monitor className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">System</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Matches your device</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
         {/* Change Password Card */}
-        <div className="card p-6">
+        <div className="card mb-6 p-6">
           <div className="mb-6 flex items-center gap-3">
             <div className="rounded-lg bg-yellow-100 p-3">
               <Key className="h-6 w-6 text-yellow-600" />
