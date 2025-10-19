@@ -226,12 +226,12 @@ export default function UsersManager() {
       <div className="mx-auto max-w-7xl p-6">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage users, roles, and permissions</p>
             </div>
-            <button onClick={handleCreate} className="btn btn-primary flex items-center gap-2">
+            <button onClick={handleCreate} className="btn btn-primary flex w-full items-center justify-center gap-2 sm:w-auto">
               <UserPlus className="h-5 w-5" />
               <span>New User</span>
             </button>
