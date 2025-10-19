@@ -199,7 +199,7 @@ async def create_vulnerability(
 ):
     """Create a new vulnerability (requires editor or admin role)."""
     vuln = Vulnerability(
-        **vuln_data.model_dump(exclude={"type"}),
+        **vuln_data.model_dump(exclude={"vuln_type"}),
         vuln_type=vuln_data.vuln_type,
         created_by=user.id,
         updated_by=user.id,
@@ -248,7 +248,7 @@ async def update_vulnerability(
         )
 
     # Update fields
-    update_data = vuln_data.model_dump(exclude_unset=True, exclude={"type"})
+    update_data = vuln_data.model_dump(exclude_unset=True, exclude={"vuln_type"})
     if "vuln_type" in vuln_data.model_dump(exclude_unset=True):
         update_data["vuln_type"] = vuln_data.vuln_type
 

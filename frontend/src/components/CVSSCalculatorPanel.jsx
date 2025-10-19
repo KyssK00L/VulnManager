@@ -272,12 +272,15 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
 
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopImmediatePropagation()
         onClose()
       }
     }
 
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+    // Use capture phase to intercept event before VulnerabilityFormModal
+    window.addEventListener('keydown', handleEscape, true)
+    return () => window.removeEventListener('keydown', handleEscape, true)
   }, [isOpen, onClose])
 
   const calculateScore = async () => {

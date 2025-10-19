@@ -148,6 +148,48 @@ async def revoke_token(
     return None
 
 
+@router.delete("/{token_id}/permanent", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_token_permanently(
+    token_id: UUID,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """
+    Permanently delete a revoked API token (admin-only).
+
+    This removes the token from the database entirely.
+    Can only delete already revoked tokens.
+    """
+    result = await db.execute(select(ApiToken).where(ApiToken.id == token_id))
+    token = result.scalar_one_or_none()
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Token not found",
+        )
+
+    if not token.revoked_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot permanently delete an active token. Revoke it first.",
+        )
+
+    # Permanently delete from database
+    await db.delete(token)
+    await db.commit()
+
+    audit_log(
+        "token.delete_permanent",
+        actor_id=str(admin.id),
+        request=request,
+        target={"token_id": str(token_id)},
+    )
+
+    return None
+
+
 @router.post("/{token_id}/rotate", response_model=ApiTokenWithSecret)
 async def rotate_token(
     token_id: UUID,

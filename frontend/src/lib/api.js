@@ -60,6 +60,7 @@ export const tokensApi = {
   get: (id) => api.get(`/api/tokens/${id}`),
   create: (data) => api.post('/api/tokens', data),
   revoke: (id) => api.delete(`/api/tokens/${id}`),
+  deletePermanent: (id) => api.delete(`/api/tokens/${id}/permanent`),
   rotate: (id) => api.post(`/api/tokens/${id}/rotate`),
 }
 

@@ -118,7 +118,7 @@ export default function Layout({ children }) {
       {/* Desktop layout */}
       <div className="hidden lg:flex">
         {/* Sidebar */}
-        <aside className={`fixed inset-y-0 left-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 ${
+        <aside className={`fixed inset-y-0 left-0 z-50 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 ${
           sidebarCollapsed ? 'w-16' : 'w-64'
         }`}>
           {/* Header with toggle button */}

@@ -37,6 +37,13 @@ export default function Tokens() {
     },
   })
 
+  const deletePermanentMutation = useMutation({
+    mutationFn: tokensApi.deletePermanent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tokens'])
+    },
+  })
+
   const rotateMutation = useMutation({
     mutationFn: tokensApi.rotate,
     onSuccess: (data) => {
@@ -53,6 +60,11 @@ export default function Tokens() {
   const handleRevoke = async (id, label) => {
     if (!confirm(`Are you sure you want to revoke token "${label}"?`)) return
     await revokeMutation.mutateAsync(id)
+  }
+
+  const handleDeletePermanent = async (id, label) => {
+    if (!confirm(`Permanently delete token "${label}"? This action cannot be undone!`)) return
+    await deletePermanentMutation.mutateAsync(id)
   }
 
   const handleRotate = async (id) => {
@@ -153,22 +165,32 @@ export default function Tokens() {
                     </div>
 
                     <div className="flex gap-2">
-                      {token.is_valid && (
+                      {token.is_valid ? (
+                        <>
+                          <button
+                            onClick={() => handleRotate(token.id)}
+                            className="btn btn-secondary"
+                            title="Rotate token"
+                          >
+                            <RefreshCw className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleRevoke(token.id, token.label)}
+                            className="btn btn-danger"
+                            title="Revoke token"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </>
+                      ) : (
                         <button
-                          onClick={() => handleRotate(token.id)}
-                          className="btn btn-secondary"
-                          title="Rotate token"
+                          onClick={() => handleDeletePermanent(token.id, token.label)}
+                          className="btn btn-danger"
+                          title="Delete permanently"
                         >
-                          <RefreshCw className="h-5 w-5" />
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       )}
-                      <button
-                        onClick={() => handleRevoke(token.id, token.label)}
-                        className="btn btn-danger"
-                        title="Revoke token"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
                     </div>
                   </div>
                 </div>

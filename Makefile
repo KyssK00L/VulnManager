@@ -29,7 +29,7 @@ build: ## Rebuild les images Docker
 .PHONY: clean
 clean: ## Supprimer tous les conteneurs et volumes
 	docker-compose down -v
-	@echo "⚠️  Attention: Toutes les données ont été supprimées!"
+	@echo "⚠️   Attention: Toutes les données ont été supprimées!"
 
 .PHONY: clean-local
 clean-local: ## Nettoyer fichiers générés localement (cache, node_modules, etc.)
