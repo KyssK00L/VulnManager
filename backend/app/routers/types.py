@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.utils.vulnerability_types import VULNERABILITY_TYPES, get_types_by_category
-from app.dependencies import require_admin, get_db
+from app.dependencies import require_admin, require_editor, get_db
 from app.models.user import User
 from app.models.custom_type import CustomVulnerabilityType
 
@@ -102,10 +102,10 @@ async def get_vulnerability_type(type_name: str, db: AsyncSession = Depends(get_
 async def create_custom_type(
     type_data: TypeMetadataCreate,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_admin)
+    user: User = Depends(require_editor)
 ):
     """
-    Create a new custom vulnerability type (admin only).
+    Create a new custom vulnerability type (editor or admin role required).
 
     Custom types are stored persistently in the database.
     """
@@ -156,10 +156,10 @@ async def update_vulnerability_type(
     type_name: str,
     update: TypeMetadataUpdate,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_admin)
+    user: User = Depends(require_editor)
 ):
     """
-    Update metadata for a vulnerability type (admin only).
+    Update metadata for a vulnerability type (editor or admin role required).
 
     Built-in types: Updates in-memory only (not persisted).
     Custom types: Updates are saved to database (persistent).
@@ -212,10 +212,10 @@ async def update_vulnerability_type(
 async def delete_custom_type(
     type_name: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_admin)
+    user: User = Depends(require_editor)
 ):
     """
-    Delete a custom vulnerability type (admin only).
+    Delete a custom vulnerability type (editor or admin role required).
 
     Built-in types cannot be deleted.
     """

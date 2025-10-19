@@ -32,7 +32,7 @@ function App() {
         <Route
           path="/types"
           element={
-            <ProtectedRoute requireAdmin>
+            <ProtectedRoute requireEditor>
               <TypesManager />
             </ProtectedRoute>
           }

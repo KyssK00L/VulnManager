@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 
 export default function Layout({ children }) {
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout, isAdmin, canEdit } = useAuth()
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -32,8 +32,10 @@ export default function Layout({ children }) {
 
   const navigation = [
     { name: 'Vulnerabilities', href: '/', icon: Shield },
-    ...(isAdmin ? [
+    ...(canEdit ? [
       { name: 'Types Manager', href: '/types', icon: Package },
+    ] : []),
+    ...(isAdmin ? [
       { name: 'Users', href: '/users', icon: Users },
       { name: 'API Tokens', href: '/tokens', icon: Key },
     ] : []),
