@@ -66,7 +66,7 @@ export default function Tokens() {
         {/* Header */}
         <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 py-6 lg:px-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">API Tokens</h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -75,7 +75,7 @@ export default function Tokens() {
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="btn btn-primary"
+                className="btn btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <Plus className="h-5 w-5" />
                 Create Token
