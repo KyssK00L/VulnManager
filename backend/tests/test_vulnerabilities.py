@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from sqlalchemy import select
 
@@ -18,6 +20,58 @@ async def _create_user(session, *, role=UserRole.EDITOR, email='editor@example.c
     await session.commit()
     await session.refresh(user)
     return user
+
+
+@pytest.mark.asyncio
+async def test_search_pagination_returns_unique_items_per_page(client):
+    test_client, session_factory = client
+
+    async with session_factory() as session:
+        user = await _create_user(session)
+        timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        created_ids = []
+        for index in range(4):
+            vuln = Vulnerability(
+                name=f'Stable Vuln {index}',
+                level=VulnerabilityLevel.HIGH,
+                scope='Scope',
+                protocol_interface='HTTPS',
+                cvss_score=7.0,
+                cvss_vector='CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
+                description='Desc',
+                risk='Risk',
+                recommendation='Recommendation',
+                vuln_type=VulnerabilityType.TECHNICAL,
+                created_by=user.id,
+                updated_by=user.id,
+            )
+            vuln.created_at = timestamp
+            vuln.updated_at = timestamp
+            session.add(vuln)
+            created_ids.append(str(vuln.id))
+        await session.commit()
+
+    await test_client.post(
+        '/api/auth/login',
+        json={'email': 'editor@example.com', 'password': 'secret123'},
+    )
+
+    page1 = await test_client.get('/api/vulns', params={'per_page': 2, 'sort': 'updated_at', 'order': 'desc'})
+    assert page1.status_code == 200
+    payload1 = page1.json()
+
+    page2 = await test_client.get('/api/vulns', params={'page': 2, 'per_page': 2, 'sort': 'updated_at', 'order': 'desc'})
+    assert page2.status_code == 200
+    payload2 = page2.json()
+
+    ids_page1 = {item['id'] for item in payload1['items']}
+    ids_page2 = {item['id'] for item in payload2['items']}
+
+    assert payload1['total'] == 4
+    assert len(payload1['items']) == 2
+    assert len(payload2['items']) == 2
+    assert ids_page1.isdisjoint(ids_page2)
+    assert ids_page1.union(ids_page2) == set(created_ids)
 
 
 @pytest.mark.asyncio

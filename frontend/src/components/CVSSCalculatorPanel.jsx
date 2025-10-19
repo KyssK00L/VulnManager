@@ -293,7 +293,6 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
         i: metrics.I.toUpperCase(),
         a: metrics.A.toUpperCase(),
       })
-      console.log('CVSS calculation result:', response.data)
       setResult(response.data)
     } catch (error) {
       console.error('CVSS calculation error:', error)
@@ -315,16 +314,12 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
   }
 
   const handleApply = () => {
-    console.log('Apply CVSS clicked, result:', result)
     if (result) {
       onApply({
         score: result.score,
         vector: result.vector,
       })
-      console.log('CVSS applied, closing modal')
       onClose()
-    } else {
-      console.warn('Cannot apply - no result available')
     }
   }
 

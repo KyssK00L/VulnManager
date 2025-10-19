@@ -1,11 +1,19 @@
-import { useState } from 'react'
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useInfiniteQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { vulnsApi } from '../lib/api'
 import { Search, Plus, Filter, Download, Upload } from 'lucide-react'
 import VulnerabilityCard from '../components/VulnerabilityCard'
 import VulnerabilityFilters from '../components/VulnerabilityFilters'
 import VulnerabilityFormModal from '../components/VulnerabilityFormModal'
+import ViewSelector from '../components/ViewSelector'
+import TreeView from '../components/TreeView'
+import TableView from '../components/TableView'
+import RiskMatrixView from '../components/RiskMatrixView'
+import KanbanView from '../components/KanbanView'
+import StatsView from '../components/StatsView'
+import CompactListView from '../components/CompactListView'
+import TimelineView from '../components/TimelineView'
 import { notify } from '../lib/notifications'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -14,33 +22,97 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({})
   const [showFilters, setShowFilters] = useState(false)
-  const [page, setPage] = useState(1)
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const [selectedVulnerability, setSelectedVulnerability] = useState(null)
-  const perPage = 12
+  const [viewMode, setViewMode] = useState(() => {
+    // Load view mode from localStorage, default to 'cards'
+    return localStorage.getItem('vulnManager_viewMode') || 'cards'
+  })
   const queryClient = useQueryClient()
+
+  // Save view mode to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('vulnManager_viewMode', viewMode)
+  }, [viewMode])
 
   const canEdit = user?.role === 'editor' || user?.role === 'admin'
 
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['vulnerabilities', searchQuery, filters, page, perPage],
-    queryFn: () =>
-      vulnsApi
-        .search({
-          q: searchQuery || undefined,
-          ...filters,
-          page,
-          per_page: perPage,
-        })
-        .then((res) => res.data),
-    keepPreviousData: true,
+  // Determine perPage based on view mode
+  // Cards, List, Table: Use infinite scroll (50 per batch)
+  // Tree, Matrix, Kanban, Stats, Timeline: Auto-load all pages
+  const useInfiniteScroll = ['cards', 'list', 'table'].includes(viewMode)
+  const perPage = 50
+
+  // Use React Query's useInfiniteQuery for proper infinite scroll management
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['vulnerabilities', searchQuery, filters, viewMode],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await vulnsApi.search({
+        q: searchQuery || undefined,
+        ...filters,
+        page: pageParam,
+        per_page: perPage,
+      })
+      return response.data
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // Calculate total items loaded so far
+      const loadedItems = allPages.reduce((sum, page) => sum + page.items.length, 0)
+      // If we've loaded everything, return undefined (no more pages)
+      if (loadedItems >= lastPage.total) {
+        return undefined
+      }
+      // Otherwise, return the next page number
+      return allPages.length + 1
+    },
+    initialPageParam: 1,
   })
 
-  const vulnerabilities = data?.items ?? []
-  const total = data?.total ?? 0
-  const totalPages = Math.max(1, Math.ceil(total / perPage))
-  const rangeStart = total === 0 ? 0 : (page - 1) * perPage + 1
-  const rangeEnd = total === 0 ? 0 : rangeStart + vulnerabilities.length - 1
+  // Flatten all pages into a single array
+  const vulnerabilities = data?.pages.flatMap((page) => page.items) ?? []
+  const totalCount = data?.pages[0]?.total ?? 0
+
+  // Auto-load all pages for analytical views (tree, matrix, kanban, stats, timeline)
+  useEffect(() => {
+    if (!useInfiniteScroll && !isFetchingNextPage && hasNextPage) {
+      fetchNextPage()
+    }
+  }, [useInfiniteScroll, isFetchingNextPage, hasNextPage, fetchNextPage])
+
+  // Infinite scroll with scroll event listener
+  useEffect(() => {
+    if (!useInfiniteScroll) return
+
+    const handleScroll = () => {
+      // Calculate how close we are to the bottom
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight)
+
+      // Load more when within 500px of bottom
+      if (distanceFromBottom < 500 && !isFetchingNextPage && hasNextPage) {
+        fetchNextPage()
+      }
+    }
+
+    // Attach scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    // Trigger initial check in case content doesn't fill screen
+    handleScroll()
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [useInfiniteScroll, isFetchingNextPage, hasNextPage, fetchNextPage])
 
   const handleImport = async (e) => {
     const file = e.target.files?.[0]
@@ -53,7 +125,6 @@ export default function Dashboard() {
         `Import completed: ${summary.created} created, ${summary.updated} updated, ${summary.skipped} skipped`,
         'success',
       )
-      setPage(1)
       await queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })
     } catch (error) {
       notify(`Import failed: ${error.response?.data?.detail || error.message}`, 'error')
@@ -82,7 +153,6 @@ export default function Dashboard() {
 
   const handleFilterChange = (nextFilters) => {
     setFilters(nextFilters)
-    setPage(1)
   }
 
   const handleCreateNew = () => {
@@ -154,6 +224,11 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* View Selector */}
+            <div className="mt-4">
+              <ViewSelector currentView={viewMode} onChange={setViewMode} />
+            </div>
+
             {/* Search bar */}
             <div className="mt-4 flex gap-2">
               <div className="relative flex-1">
@@ -162,10 +237,7 @@ export default function Dashboard() {
                   type="text"
                   placeholder="Search vulnerabilities..."
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setPage(1)
-                  }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="input pl-10"
                 />
               </div>
@@ -196,44 +268,101 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between pb-4 text-sm text-gray-600 dark:text-gray-400">
-                <span>
-                  Showing {rangeStart.toLocaleString()}–{rangeEnd.toLocaleString()} of {total.toLocaleString()}{' '}
-                  vulnerabilities
-                </span>
-                {isFetching && (
-                  <span className="italic text-gray-400 dark:text-gray-500">Refreshing…</span>
-                )}
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {vulnerabilities?.map((vuln) => (
-                  <VulnerabilityCard
-                    key={vuln.id}
-                    vulnerability={vuln}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-              {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-center gap-4">
-                  <button
-                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    className="btn btn-secondary"
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </button>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Page {page} of {totalPages}
+              {/* Stats bar - shown for all views except stats */}
+              {viewMode !== 'stats' && (
+                <div className="flex items-center justify-between pb-4 text-sm text-gray-600 dark:text-gray-400">
+                  <span>
+                    Showing {vulnerabilities.length.toLocaleString()} of {totalCount.toLocaleString()}{' '}
+                    vulnerabilities
+                    {useInfiniteScroll && vulnerabilities.length < totalCount && ' (scroll for more)'}
                   </span>
-                  <button
-                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                    className="btn btn-secondary"
-                    disabled={page === totalPages}
-                  >
-                    Next
-                  </button>
+                  {(isFetchingNextPage || (!useInfiniteScroll && isFetching)) && (
+                    <span className="italic text-gray-400 dark:text-gray-500">
+                      {useInfiniteScroll ? 'Loading more…' : 'Loading…'}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Render appropriate view based on viewMode */}
+              {viewMode === 'cards' && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {vulnerabilities?.map((vuln) => (
+                    <VulnerabilityCard
+                      key={vuln.id}
+                      vulnerability={vuln}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {viewMode === 'tree' && (
+                <TreeView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+
+              {viewMode === 'table' && (
+                <TableView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+
+              {viewMode === 'matrix' && (
+                <RiskMatrixView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                />
+              )}
+
+              {viewMode === 'kanban' && (
+                <KanbanView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+
+              {viewMode === 'stats' && (
+                <StatsView vulnerabilities={vulnerabilities} />
+              )}
+
+              {viewMode === 'list' && (
+                <CompactListView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+
+              {viewMode === 'timeline' && (
+                <TimelineView
+                  vulnerabilities={vulnerabilities}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+
+              {/* Loading indicator for infinite scroll views */}
+              {useInfiniteScroll && (
+                <div className="py-8 text-center">
+                  {isFetchingNextPage && (
+                    <div className="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400">
+                      <div className="h-6 w-6 animate-spin rounded-full border-3 border-primary-200 dark:border-primary-800 border-t-primary-600 dark:border-t-primary-400"></div>
+                      <span className="text-sm">Loading more vulnerabilities...</span>
+                    </div>
+                  )}
+                  {!hasNextPage && vulnerabilities.length > 0 && vulnerabilities.length === totalCount && (
+                    <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                      All {totalCount.toLocaleString()} vulnerabilities loaded
+                    </div>
+                  )}
                 </div>
               )}
             </>

@@ -4,12 +4,6 @@ import { useTheme } from '../contexts/ThemeContext'
 export default function ThemeToggle({ variant = 'floating', className = '' }) {
   const { theme, toggleTheme } = useTheme()
 
-  const handleClick = () => {
-    console.log('ThemeToggle clicked! Current theme:', theme)
-    toggleTheme()
-    console.log('toggleTheme called')
-  }
-
   const baseClasses =
     'items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
 
@@ -24,7 +18,7 @@ export default function ThemeToggle({ variant = 'floating', className = '' }) {
 
   return (
     <button
-      onClick={handleClick}
+      onClick={toggleTheme}
       className={combinedClasses}
       title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       aria-label="Toggle theme"

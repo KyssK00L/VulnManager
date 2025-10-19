@@ -113,10 +113,10 @@ async def search_vulnerabilities(
 
     # Sorting
     sort_field = getattr(Vulnerability, sort, Vulnerability.updated_at)
-    if order.lower() == "asc":
-        query = query.order_by(sort_field.asc())
-    else:
-        query = query.order_by(sort_field.desc())
+    order_is_asc = order.lower() == "asc"
+    primary_order = sort_field.asc() if order_is_asc else sort_field.desc()
+    secondary_order = Vulnerability.id.asc() if order_is_asc else Vulnerability.id.desc()
+    query = query.order_by(primary_order, secondary_order)
 
     # Pagination
     offset = (page - 1) * per_page
