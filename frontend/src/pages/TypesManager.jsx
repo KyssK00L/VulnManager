@@ -235,7 +235,7 @@ export default function TypesManager() {
       <div className="mx-auto max-w-7xl p-6">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Vulnerability Types</h1>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -244,7 +244,7 @@ export default function TypesManager() {
           </div>
           <button
             onClick={handleCreate}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <Plus className="h-5 w-5" />
             <span>New Type</span>
