@@ -31,7 +31,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NotificationCenter />
-      <ThemeToggle />
+      <ThemeToggle variant="floating" />
       {/* Mobile header */}
       <header className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-sm lg:hidden border-b border-gray-200 dark:border-gray-700">
         <div className="flex h-16 items-center justify-between px-4">
@@ -39,12 +39,15 @@ export default function Layout({ children }) {
             <Shield className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">VulnManager</h1>
           </div>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="btn-ghost p-2"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle variant="compact" />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="btn-ghost p-2"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
