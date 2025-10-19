@@ -1,5 +1,7 @@
 # VulnManager
 
+> **[English version available here / Version anglaise disponible ici](README_EN.md)**
+
 **VulnManager** est une application web complète de gestion de vulnérabilités avec intégration Microsoft Word. L'application permet de gérer une base de vulnérabilités (CRUD, recherche, filtres, import/export XML) et d'insérer automatiquement des vulnérabilités dans des rapports Word via une macro VBA.
 
 ## Caractéristiques principales
@@ -286,6 +288,7 @@ Format d'import/export :
 - `GET /api/tokens` - Lister les tokens
 - `GET /api/tokens/{id}` - Détails d'un token
 - `DELETE /api/tokens/{id}` - Révoquer un token
+- `DELETE /api/tokens/{id}/permanent` - Supprimer définitivement un token révoqué
 - `POST /api/tokens/{id}/rotate` - Rotater un token
 - `HEAD /api/tokens/validate` - Valider un token
 
@@ -308,6 +311,13 @@ Format d'import/export :
 - `POST /api/cvss/build` - Construire un vecteur et calculer depuis les métriques
 - `GET /api/cvss/metrics` - Obtenir les définitions des métriques CVSS 3.1
 
+### Types
+- `GET /api/types` - Lister tous les types de vulnérabilités (built-in + custom)
+- `GET /api/types/{type_name}` - Détails d'un type
+- `POST /api/types` - Créer un type personnalisé (admin)
+- `PUT /api/types/{type_name}` - Modifier un type (admin)
+- `DELETE /api/types/{type_name}` - Supprimer un type custom (admin)
+
 ## Contribution
 
 1. Fork le projet
@@ -326,10 +336,33 @@ Pour les bugs et feature requests, ouvrez une issue sur GitHub.
 
 ## Changelog
 
+### v1.2.0 (2025-01-XX)
+- Ajout de la suppression permanente des tokens révoqués
+- Correction du conflit de touche Escape entre calculateur CVSS et formulaire
+- Amélioration du z-index pour la sidebar et les modals
+- Ajout de `frontend/package-lock.json` pour verrouiller les versions de dépendances
+
+### v1.1.0 (2024-12-XX)
+- Refactorisation du scroll infini et réorganisation des types de vulnérabilités
+- Ajout d'une sidebar pliable pour desktop
+- Amélioration de l'UI mobile (header, boutons, alignement)
+- Ajout d'un toggle de thème compact
+- Base de données complète avec 121 vulnérabilités
+- Documentation technique complète pour les macros Office
+- Amélioration du routing API et détection des doublons
+- Ajout d'un favicon Shield personnalisé
+- Filtrage multi-types de vulnérabilités
+- Fermeture des modals avec touche Escape
+- Support Safari iOS (fallback crypto.randomUUID)
+
 ### v1.0.0 (2024-01-XX)
 - Version initiale
-- API REST complète
-- Interface web responsive
+- API REST complète avec FastAPI
+- Interface web responsive (React + Vite + Tailwind CSS)
 - Intégration Word via VBA
-- Système de tokens API
+- Système de tokens API avec scopes
 - Import/export XML
+- Calculateur CVSS 3.1 intégré
+- Authentification par sessions HttpOnly
+- Gestion des utilisateurs et rôles (viewer, editor, admin)
+- Historique des modifications de vulnérabilités
