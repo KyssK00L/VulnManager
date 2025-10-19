@@ -1,42 +1,40 @@
 # VulnManager
 
-> **[English version available here / Version anglaise disponible ici](README_EN.md)**
+**VulnManager** is a comprehensive vulnerability management web application with Microsoft Word integration. The application allows you to manage a vulnerability database (CRUD, search, filters, XML import/export) and automatically insert vulnerabilities into Word reports via a VBA macro.
 
-**VulnManager** est une application web complète de gestion de vulnérabilités avec intégration Microsoft Word. L'application permet de gérer une base de vulnérabilités (CRUD, recherche, filtres, import/export XML) et d'insérer automatiquement des vulnérabilités dans des rapports Word via une macro VBA.
-
-## Caractéristiques principales
+## Key Features
 
 ### Backend (FastAPI + PostgreSQL)
-- API REST complète pour la gestion de vulnérabilités
-- Authentification web par login/password (session HttpOnly)
-- Système de tokens API (PAT) pour l'authentification des macros Word
-- Import/export XML avec préservation de l'ordre des tags
-- Recherche et filtrage avancés
-- Historique des modifications
-- Gestion des scopes et expiration des tokens
+- Complete REST API for vulnerability management
+- Web authentication via login/password (HttpOnly session)
+- API token system (PAT) for Word macro authentication
+- XML import/export with tag order preservation
+- Advanced search and filtering
+- Change history tracking
+- Token scope management and expiration
 
 ### Frontend (React + Vite)
-- Interface responsive mobile-first (iOS, Android, Desktop)
-- Design inspiré d'OpenWebUI avec Tailwind CSS
-- Recherche et filtres en temps réel
-- Page d'administration des tokens (admin-only)
-- Import/export XML via l'interface
-- Gestion des utilisateurs et des rôles (viewer, editor, admin)
-- **Calculateur CVSS 3.1 intégré** avec interface interactive
+- Mobile-first responsive interface (iOS, Android, Desktop)
+- Design inspired by OpenWebUI with Tailwind CSS
+- Real-time search and filters
+- Token administration page (admin-only)
+- XML import/export via the interface
+- User and role management (viewer, editor, admin)
+- **Integrated CVSS 3.1 calculator** with interactive interface
 
-### Intégration Word (VBA)
-- Macro VBA avec UserForm interactive
-- Cache local des vulnérabilités (CustomXMLParts)
-- Authentification par token API (pas de hardcode)
-- Prévisualisation avant insertion
-- Insertion de cartouches formatées dans les rapports
-- Synchronisation incrémentale
+### Word Integration (VBA)
+- VBA macro with interactive UserForm
+- Local vulnerability cache (CustomXMLParts)
+- API token authentication (no hardcoding)
+- Preview before insertion
+- Insertion of formatted vulnerability cards in reports
+- Incremental synchronization
 
 ## Architecture
 
 ```
 VulnManager/
-├── backend/              # API FastAPI
+├── backend/              # FastAPI API
 │   ├── app/
 │   │   ├── models/      # SQLAlchemy models
 │   │   ├── schemas/     # Pydantic schemas
@@ -70,153 +68,153 @@ VulnManager/
 └── docker-compose.yml   # Docker orchestration
 ```
 
-## Installation et déploiement
+## Installation and Deployment
 
-### Prérequis
+### Prerequisites
 
-- Docker et Docker Compose
-- (Optionnel) Node.js 20+ et Python 3.11+ pour développement local
+- Docker and Docker Compose
+- (Optional) Node.js 20+ and Python 3.11+ for local development
 
-### Déploiement avec Docker
+### Deployment with Docker
 
-1. **Cloner le repository**
+1. **Clone the repository**
 
 ```bash
 git clone <repository-url>
 cd VulnManager
 ```
 
-2. **Créer le fichier `.env`**
+2. **Create the `.env` file**
 
 ```bash
 cp .env.example .env
 ```
 
-Éditer `.env` et configurer :
-- `SECRET_KEY`: Clé secrète pour les sessions (minimum 32 caractères)
-- `DATABASE_URL`: URL de la base de données PostgreSQL
-- `CORS_ORIGINS`: Origines autorisées pour CORS
+Edit `.env` and configure:
+- `SECRET_KEY`: Secret key for sessions (minimum 32 characters)
+- `DATABASE_URL`: PostgreSQL database URL
+- `CORS_ORIGINS`: Allowed origins for CORS
 
-3. **Démarrer les services**
+3. **Start the services**
 
 ```bash
 docker-compose up -d
 ```
 
-Les services seront disponibles :
+Services will be available at:
 - **Backend API**: http://localhost:8000
 - **Frontend Web**: http://localhost:5173
 - **PostgreSQL**: localhost:5432
 
-4. **Initialiser la base de données**
+4. **Initialize the database**
 
 ```bash
-# Créer les migrations
+# Create migrations
 docker-compose exec api alembic upgrade head
 
-# Créer l'utilisateur admin par défaut
+# Create default admin user
 docker-compose exec api python scripts/init_db.py
 ```
 
-Credentials par défaut :
+Default credentials:
 - Username: `admin`
 - Password: `admin123`
 
-**⚠️ IMPORTANT**: Changez le mot de passe admin après la première connexion !
+**⚠️ IMPORTANT**: Change the admin password after first login!
 
-### Configuration de la macro Word
+### Word Macro Configuration
 
-1. Connectez-vous en tant qu'admin sur http://localhost:5173
-2. Allez dans "API Tokens"
-3. Créez un nouveau token avec les scopes `read:vulns` et `export:doc`
-4. **Copiez le token immédiatement** (il ne sera plus visible)
-5. Ouvrez Microsoft Word
-6. Importez les fichiers VBA depuis `office/`:
+1. Log in as admin at http://localhost:5173
+2. Go to "API Tokens"
+3. Create a new token with `read:vulns` and `export:doc` scopes
+4. **Copy the token immediately** (it won't be visible again)
+5. Open Microsoft Word
+6. Import VBA files from `office/`:
    - `Settings.bas`
    - `Api.bas`
    - `Cache.bas`
    - `Insert.bas`
-7. Lancez `ShowSettingsForm` (Alt+F8)
-8. Entrez l'URL de l'API : `http://localhost:8000`
-9. Collez le token API
-10. Cliquez "Save"
+7. Run `ShowSettingsForm` (Alt+F8)
+8. Enter the API URL: `http://localhost:8000`
+9. Paste the API token
+10. Click "Save"
 
-La macro est maintenant configurée !
+The macro is now configured!
 
-## Utilisation
+## Usage
 
-### Interface web
+### Web Interface
 
-1. **Connexion**: Accédez à http://localhost:5173 et connectez-vous
-2. **Gestion des vulnérabilités**:
-   - Rechercher, filtrer, trier
-   - Créer, modifier, supprimer (rôles editor/admin)
-   - Importer/exporter XML
-3. **Calculateur CVSS**:
-   - Calculer les scores CVSS 3.1 en sélectionnant les métriques
-   - Copier le vecteur CVSS généré
-   - Exporter les résultats en JSON
-   - Aide contextuelle pour chaque métrique
-4. **Gestion des tokens** (admin uniquement):
-   - Créer des tokens pour les macros Word
-   - Révoquer ou rotater les tokens
-   - Voir l'historique d'utilisation
+1. **Login**: Access http://localhost:5173 and log in
+2. **Vulnerability Management**:
+   - Search, filter, sort
+   - Create, edit, delete (editor/admin roles)
+   - Import/export XML
+3. **CVSS Calculator**:
+   - Calculate CVSS 3.1 scores by selecting metrics
+   - Copy generated CVSS vector
+   - Export results to JSON
+   - Contextual help for each metric
+4. **Token Management** (admin only):
+   - Create tokens for Word macros
+   - Revoke or rotate tokens
+   - View usage history
 
-### Macro Word
+### Word Macro
 
-1. Ouvrez un document Word
-2. Lancez la macro VulnManager (Alt+F8 ou bouton du ruban)
-3. La macro synchronise automatiquement le cache
-4. Recherchez et filtrez les vulnérabilités
-5. Sélectionnez une vulnérabilité pour la prévisualiser
-6. Cliquez "Insert" pour l'insérer dans le document
+1. Open a Word document
+2. Launch the VulnManager macro (Alt+F8 or ribbon button)
+3. The macro automatically synchronizes the cache
+4. Search and filter vulnerabilities
+5. Select a vulnerability to preview it
+6. Click "Insert" to insert it into the document
 
-## Sécurité
+## Security
 
-### Authentification web
-- Sessions HttpOnly avec SameSite=Lax
-- Mots de passe hashés avec bcrypt
-- Rôles et permissions (viewer, editor, admin)
+### Web Authentication
+- HttpOnly sessions with SameSite=Lax
+- Passwords hashed with bcrypt
+- Roles and permissions (viewer, editor, admin)
 
-### Tokens API
-- Tokens générés aléatoirement (format: `vm_<40 hex chars>`)
-- Stockage des hash uniquement (SHA-256)
-- Scopes granulaires (read:vulns, export:doc, write:vulns)
-- Expiration configurable
-- Révocation et rotation
-- Journalisation d'utilisation (last_used_at, IP)
+### API Tokens
+- Randomly generated tokens (format: `vm_<40 hex chars>`)
+- Hash-only storage (SHA-256)
+- Granular scopes (read:vulns, export:doc, write:vulns)
+- Configurable expiration
+- Revocation and rotation
+- Usage logging (last_used_at, IP)
 
-### Bonnes pratiques
-- HTTPS obligatoire en production
-- Rate limiting sur les endpoints sensibles
-- CORS restreint
-- Tokens jamais dans les URLs
-- Sanitation des entrées Markdown→HTML
+### Best Practices
+- HTTPS mandatory in production
+- Rate limiting on sensitive endpoints
+- Restricted CORS
+- Tokens never in URLs
+- Markdown→HTML input sanitization
 
-## Développement
+## Development
 
 ### Backend
 
 ```bash
 cd backend
 
-# Créer un environnement virtuel
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # ou `venv\Scripts\activate` sur Windows
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 
-# Installer les dépendances
+# Install dependencies
 pip install -r requirements.txt
 
-# Lancer le serveur de développement
+# Run development server
 uvicorn app.main:app --reload
 
-# Créer une migration
+# Create a migration
 alembic revision --autogenerate -m "Description"
 
-# Appliquer les migrations
+# Apply migrations
 alembic upgrade head
 
-# Lancer les tests
+# Run tests
 pytest
 
 # Linter
@@ -229,13 +227,13 @@ ruff format .
 ```bash
 cd frontend
 
-# Installer les dépendances
+# Install dependencies
 npm install
 
-# Lancer le serveur de développement
+# Run development server
 npm run dev
 
-# Build pour production
+# Build for production
 npm run build
 
 # Linter
@@ -254,23 +252,23 @@ cd frontend
 npm test
 ```
 
-## Schéma XML
+## XML Schema
 
-Format d'import/export :
+Import/export format:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <vulnerabilities>
   <vulnerability>
-    <Name>Exemple de vulnérabilité</Name>
+    <Name>Example vulnerability</Name>
     <Level>Critical|High|Medium|Low|Informational</Level>
-    <Scope>Périmètre de la vulnérabilité</Scope>
+    <Scope>Vulnerability scope</Scope>
     <Protocol-Interface>HTTP/HTTPS</Protocol-Interface>
     <CVSS3.1_Score>9.8</CVSS3.1_Score>
     <CVSS3.1_VectorString>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</CVSS3.1_VectorString>
-    <Description>Description de la vulnérabilité</Description>
-    <Risk>Analyse du risque</Risk>
-    <Recommendation>Recommandations de remediation</Recommendation>
+    <Description>Vulnerability description</Description>
+    <Risk>Risk analysis</Risk>
+    <Recommendation>Remediation recommendations</Recommendation>
     <Type>Technical|Organizational|Physical</Type>
   </vulnerability>
 </vulnerabilities>
@@ -278,91 +276,91 @@ Format d'import/export :
 
 ## API Endpoints
 
-### Authentification
-- `POST /api/auth/login` - Connexion
-- `POST /api/auth/logout` - Déconnexion
-- `GET /api/auth/me` - Informations utilisateur
+### Authentication
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/me` - User information
 
 ### Tokens (admin)
-- `POST /api/tokens` - Créer un token
-- `GET /api/tokens` - Lister les tokens
-- `GET /api/tokens/{id}` - Détails d'un token
-- `DELETE /api/tokens/{id}` - Révoquer un token
-- `DELETE /api/tokens/{id}/permanent` - Supprimer définitivement un token révoqué
-- `POST /api/tokens/{id}/rotate` - Rotater un token
-- `HEAD /api/tokens/validate` - Valider un token
+- `POST /api/tokens` - Create token
+- `GET /api/tokens` - List tokens
+- `GET /api/tokens/{id}` - Token details
+- `DELETE /api/tokens/{id}` - Revoke token
+- `DELETE /api/tokens/{id}/permanent` - Permanently delete revoked token
+- `POST /api/tokens/{id}/rotate` - Rotate token
+- `HEAD /api/tokens/validate` - Validate token
 
-### Vulnérabilités
-- `GET /api/vulns` - Rechercher/filtrer
-- `GET /api/vulns/{id}` - Détails
-- `POST /api/vulns` - Créer (editor+)
-- `PUT /api/vulns/{id}` - Modifier (editor+)
-- `DELETE /api/vulns/{id}` - Supprimer (editor+)
-- `GET /api/vulns/{id}/history` - Historique
-- `POST /api/vulns/import/xml` - Importer XML (editor+)
-- `POST /api/vulns/export/xml` - Exporter XML
+### Vulnerabilities
+- `GET /api/vulns` - Search/filter
+- `GET /api/vulns/{id}` - Details
+- `POST /api/vulns` - Create (editor+)
+- `PUT /api/vulns/{id}` - Update (editor+)
+- `DELETE /api/vulns/{id}` - Delete (editor+)
+- `GET /api/vulns/{id}/history` - History
+- `POST /api/vulns/import/xml` - Import XML (editor+)
+- `POST /api/vulns/export/xml` - Export XML
 
 ### Word Integration (token auth)
-- `GET /api/vulns/bulk` - Cache pour macro (scope: read:vulns)
-- `GET /api/vulns/{id}/exportdoc` - Export pour insertion (scope: export:doc)
+- `GET /api/vulns/bulk` - Cache for macro (scope: read:vulns)
+- `GET /api/vulns/{id}/exportdoc` - Export for insertion (scope: export:doc)
 
 ### CVSS Calculator
-- `POST /api/cvss/calculate` - Calculer le score depuis un vecteur CVSS
-- `POST /api/cvss/build` - Construire un vecteur et calculer depuis les métriques
-- `GET /api/cvss/metrics` - Obtenir les définitions des métriques CVSS 3.1
+- `POST /api/cvss/calculate` - Calculate score from CVSS vector
+- `POST /api/cvss/build` - Build vector and calculate from metrics
+- `GET /api/cvss/metrics` - Get CVSS 3.1 metric definitions
 
 ### Types
-- `GET /api/types` - Lister tous les types de vulnérabilités (built-in + custom)
-- `GET /api/types/{type_name}` - Détails d'un type
-- `POST /api/types` - Créer un type personnalisé (admin)
-- `PUT /api/types/{type_name}` - Modifier un type (admin)
-- `DELETE /api/types/{type_name}` - Supprimer un type custom (admin)
+- `GET /api/types` - List all vulnerability types (built-in + custom)
+- `GET /api/types/{type_name}` - Type details
+- `POST /api/types` - Create custom type (editor+)
+- `PUT /api/types/{type_name}` - Update type (editor+)
+- `DELETE /api/types/{type_name}` - Delete custom type (editor+)
 
-## Contribution
+## Contributing
 
-1. Fork le projet
-2. Créez une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add AmazingFeature'`)
-4. Pushez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
 
 ## Support
 
-Pour les bugs et feature requests, ouvrez une issue sur GitHub.
+For bugs and feature requests, please open an issue on GitHub.
 
 ## Changelog
 
 ### v1.2.0 (2025-01-XX)
-- Ajout de la suppression permanente des tokens révoqués
-- Correction du conflit de touche Escape entre calculateur CVSS et formulaire
-- Amélioration du z-index pour la sidebar et les modals
-- Ajout de `frontend/package-lock.json` pour verrouiller les versions de dépendances
+- Added permanent deletion of revoked tokens
+- Fixed Escape key conflict between CVSS calculator and form
+- Improved z-index for sidebar and modals
+- Added `frontend/package-lock.json` to lock dependency versions
 
 ### v1.1.0 (2024-12-XX)
-- Refactorisation du scroll infini et réorganisation des types de vulnérabilités
-- Ajout d'une sidebar pliable pour desktop
-- Amélioration de l'UI mobile (header, boutons, alignement)
-- Ajout d'un toggle de thème compact
-- Base de données complète avec 121 vulnérabilités
-- Documentation technique complète pour les macros Office
-- Amélioration du routing API et détection des doublons
-- Ajout d'un favicon Shield personnalisé
-- Filtrage multi-types de vulnérabilités
-- Fermeture des modals avec touche Escape
-- Support Safari iOS (fallback crypto.randomUUID)
+- Refactored infinite scroll and reorganized vulnerability types
+- Added collapsible sidebar for desktop
+- Improved mobile UI (header, buttons, alignment)
+- Added compact theme toggle
+- Complete database with 121 vulnerabilities
+- Complete technical documentation for Office macros
+- Improved API routing and duplicate detection
+- Added custom Shield favicon
+- Multi-type vulnerability filtering
+- Close modals with Escape key
+- Safari iOS support (crypto.randomUUID fallback)
 
 ### v1.0.0 (2024-01-XX)
-- Version initiale
-- API REST complète avec FastAPI
-- Interface web responsive (React + Vite + Tailwind CSS)
-- Intégration Word via VBA
-- Système de tokens API avec scopes
-- Import/export XML
-- Calculateur CVSS 3.1 intégré
-- Authentification par sessions HttpOnly
-- Gestion des utilisateurs et rôles (viewer, editor, admin)
-- Historique des modifications de vulnérabilités
+- Initial release
+- Complete REST API with FastAPI
+- Responsive web interface (React + Vite + Tailwind CSS)
+- Word integration via VBA
+- API token system with scopes
+- XML import/export
+- Integrated CVSS 3.1 calculator
+- HttpOnly session authentication
+- User and role management (viewer, editor, admin)
+- Vulnerability change history
