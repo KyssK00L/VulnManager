@@ -186,11 +186,11 @@ const CVSS_METRICS = {
 }
 
 const SEVERITY_COLORS = {
-  None: 'bg-gray-100 text-gray-800 border-gray-300',
-  Low: 'bg-blue-100 text-blue-800 border-blue-300',
-  Medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  High: 'bg-orange-100 text-orange-800 border-orange-300',
-  Critical: 'bg-red-100 text-red-800 border-red-300',
+  None: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600',
+  Low: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700',
+  Medium: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:border-yellow-700',
+  High: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/40 dark:text-orange-100 dark:border-orange-700',
+  Critical: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/40 dark:text-red-100 dark:border-red-700',
 }
 
 export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialVector = '' }) {
@@ -407,17 +407,17 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white shadow-xl">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-900 dark:shadow-2xl">
         {/* Header with Score Display */}
-        <div className="sticky top-0 z-10 border-b bg-white px-6 py-4">
+        <div className="sticky top-0 z-10 border-b bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary-100 p-2">
-                <Calculator className="h-5 w-5 text-primary-600" />
+              <div className="rounded-lg bg-primary-100 p-2 dark:bg-primary-900/60">
+                <Calculator className="h-5 w-5 text-primary-600 dark:text-primary-300" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">CVSS 3.1 Calculator</h2>
-                <p className="text-sm text-gray-500">Calculate vulnerability severity score</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">CVSS 3.1 Calculator</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Calculate vulnerability severity score</p>
               </div>
             </div>
 
@@ -426,8 +426,8 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
               {result ? (
                 <>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-gray-500">Base Score</p>
-                    <p className="text-3xl font-bold text-gray-900">{result.score.toFixed(1)}</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Base Score</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{result.score.toFixed(1)}</p>
                   </div>
                   <div>
                     <span
@@ -440,15 +440,15 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
                   </div>
                 </>
               ) : loading ? (
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600"></div>
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600 dark:border-primary-900 dark:border-t-primary-400"></div>
                   <span className="text-sm">Calculating...</span>
                 </div>
               ) : null}
 
               <button
                 onClick={onClose}
-                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -457,16 +457,16 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
 
           {/* Vector String Display */}
           {result && (
-            <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2">
-              <p className="font-mono text-xs text-gray-700">{result.vector}</p>
+            <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800">
+              <p className="font-mono text-xs text-gray-700 dark:text-gray-200">{result.vector}</p>
             </div>
           )}
         </div>
 
         <div className="p-6">
           {/* Severity Legend */}
-          <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="mb-3 text-xs font-semibold text-gray-700">Severity Ratings:</p>
+          <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+            <p className="mb-3 text-xs font-semibold text-gray-700 dark:text-gray-200">Severity Ratings:</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
               {Object.entries({
                 'None': '0.0',
@@ -489,27 +489,27 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
           {/* Metrics Grid */}
           <div className="space-y-6">
             {Object.entries(CVSS_METRICS).map(([metricKey, metric]) => (
-              <div key={metricKey} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div key={metricKey} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold text-gray-900">
+                    <label className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {metric.name}
                     </label>
                     <button
                       type="button"
                       onClick={() => setActiveHelp(activeHelp === metricKey ? null : metricKey)}
-                      className="text-gray-400 hover:text-primary-600 transition-colors"
+                      className="text-gray-400 transition-colors hover:text-primary-600 dark:text-gray-500 dark:hover:text-primary-300"
                     >
                       <Info className="h-4 w-4" />
                     </button>
                   </div>
-                  <span className="rounded bg-white px-2 py-1 font-mono text-xs font-semibold text-gray-700 border border-gray-300">
+                  <span className="rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs font-semibold text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200">
                     {metricKey}:{metrics[metricKey]}
                   </span>
                 </div>
 
                 {activeHelp === metricKey && (
-                  <p className="mb-3 rounded bg-blue-50 px-3 py-2 text-xs text-blue-900 border border-blue-200">
+                  <p className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
                     {metric.description}
                   </p>
                 )}
@@ -526,19 +526,19 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
                         onMouseLeave={handleMouseLeave}
                         className={`group relative rounded-lg border-2 px-3 py-3 text-left text-sm transition-all ${
                           isSelected
-                            ? 'border-primary-500 bg-primary-500 text-white shadow-md'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50'
+                            ? 'border-primary-500 bg-primary-500 text-white shadow-md dark:border-primary-400 dark:bg-primary-500'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-primary-400 dark:hover:bg-primary-900/40'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className={`text-xs font-semibold ${isSelected ? 'text-primary-100' : 'text-gray-500'}`}>
+                            <div className={`text-xs font-semibold ${isSelected ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'}`}>
                               {option.code}
                             </div>
-                            <div className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                            <div className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-900 dark:text-gray-100'}`}>
                               {option.label}
                             </div>
-                            <div className={`text-xs ${isSelected ? 'text-primary-100' : 'text-gray-500'}`}>
+                            <div className={`text-xs ${isSelected ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'}`}>
                               {option.desc}
                             </div>
                           </div>
@@ -555,7 +555,7 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
           </div>
 
           {/* Footer */}
-          <div className="mt-6 flex justify-end gap-3 border-t pt-4">
+          <div className="mt-6 flex justify-end gap-3 border-t pt-4 dark:border-gray-700">
             <button type="button" onClick={onClose} className="btn btn-secondary">
               Cancel
             </button>
@@ -594,7 +594,7 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
                 }`}
               >
                 <div
-                  className={`h-4 w-4 rotate-45 border-2 border-primary-400 bg-gradient-to-br from-white to-gray-50 ${
+                  className={`h-4 w-4 rotate-45 border-2 border-primary-400 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 ${
                     tooltipPlacement === 'bottom' ? 'border-b-0 border-r-0' : 'border-t-0 border-l-0'
                   }`}
                 />
@@ -602,27 +602,27 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
 
               {/* Card Content */}
               <div
-                className="w-80 rounded-xl border-2 border-primary-400 bg-gradient-to-br from-white to-gray-50 p-4 shadow-2xl"
+                className="w-80 rounded-xl border-2 border-primary-400 bg-gradient-to-br from-white to-gray-50 p-4 shadow-2xl dark:from-gray-900 dark:to-gray-800 dark:shadow-primary-500/20"
                 style={{
                   marginTop: tooltipPlacement === 'bottom' ? '8px' : '0',
                   marginBottom: tooltipPlacement === 'top' ? '8px' : '0',
                 }}
               >
                 {/* Header */}
-                <div className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100">
-                    <span className="text-sm font-bold text-primary-600">{tooltipContent.code}</span>
+                <div className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 dark:border-gray-700">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/60">
+                    <span className="text-sm font-bold text-primary-600 dark:text-primary-300">{tooltipContent.code}</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-sm font-bold text-gray-900">{tooltipContent.label}</h4>
-                    <p className="text-xs font-medium text-primary-600">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">{tooltipContent.label}</h4>
+                    <p className="text-xs font-medium text-primary-600 dark:text-primary-300">
                       {hoveredOption.metricKey}:{tooltipContent.code}
                     </p>
                   </div>
                 </div>
 
                 {/* Description */}
-                <div className="text-sm leading-relaxed text-gray-700">
+                <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-200">
                   {tooltipContent.tooltip}
                 </div>
               </div>
@@ -635,7 +635,7 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
       {mobileInfoSheet && isMobile && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-0 animate-[fadeIn_250ms_ease-out]">
           <div
-            className="w-full max-w-2xl rounded-t-3xl bg-white shadow-2xl animate-[slideUp_350ms_cubic-bezier(0.16,1,0.3,1)]"
+            className="w-full max-w-2xl rounded-t-3xl bg-white shadow-2xl animate-[slideUp_350ms_cubic-bezier(0.16,1,0.3,1)] dark:bg-gray-900"
             style={{
               maxHeight: '80vh',
               overflow: 'hidden',
@@ -643,39 +643,39 @@ export default function CVSSCalculatorPanel({ isOpen, onClose, onApply, initialV
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="h-1.5 w-12 rounded-full bg-gray-300" />
+              <div className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
             </div>
 
             {/* Content */}
             <div className="px-6 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 60px)' }}>
               {/* Header */}
-              <div className="mb-4 flex items-center gap-3 border-b border-gray-200 pb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100">
-                  <span className="text-lg font-bold text-primary-600">{mobileInfoSheet.option.code}</span>
+              <div className="mb-4 flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/60">
+                  <span className="text-lg font-bold text-primary-600 dark:text-primary-300">{mobileInfoSheet.option.code}</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900">{mobileInfoSheet.option.label}</h3>
-                  <p className="text-sm font-medium text-primary-600">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{mobileInfoSheet.option.label}</h3>
+                  <p className="text-sm font-medium text-primary-600 dark:text-primary-300">
                     {mobileInfoSheet.metricKey}:{mobileInfoSheet.option.code}
                   </p>
                 </div>
                 <button
                   onClick={() => setMobileInfoSheet(null)}
-                  className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+                  className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800"
                 >
                   <X className="h-6 w-6" />
                 </button>
               </div>
 
               {/* Description */}
-              <div className="text-base leading-relaxed text-gray-700">
+              <div className="text-base leading-relaxed text-gray-700 dark:text-gray-200">
                 {mobileInfoSheet.option.tooltip}
               </div>
 
               {/* Close Button */}
               <button
                 onClick={() => setMobileInfoSheet(null)}
-                className="mt-6 w-full rounded-lg bg-primary-600 px-4 py-3 font-semibold text-white hover:bg-primary-700 transition-colors"
+                className="mt-6 w-full rounded-lg bg-primary-600 px-4 py-3 font-semibold text-white hover:bg-primary-700 transition-colors dark:bg-primary-500 dark:hover:bg-primary-400"
               >
                 Close
               </button>
