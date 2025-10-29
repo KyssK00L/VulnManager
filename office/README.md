@@ -613,36 +613,31 @@ Les macros gèrent les codes HTTP suivants :
 
 ### Modifier le format de la cartouche
 
-Éditer `Insert.bas` → `InsertCartouche()` :
+Éditer `Insert.bas` → `InsertMetadataBlock()` pour ajuster les métadonnées placées sous le titre.
 
 ```vba
-' Exemple : Ajouter le vecteur CVSS
-Set rng = Selection.Range
-With rng
-    .Font.Bold = False
-    .Font.Size = 9
-    .Font.Color = RGB(107, 114, 128)
-    .Text = "Vecteur: " & vuln("cvss_vector") & vbCrLf
-    .Collapse wdCollapseEnd
-End With
+' Exemple : Afficher l'ordre de tag si présent
+If Len(GetJsonText(vuln, "tag_order")) > 0 Then
+    .InsertAfter "Ordre de tag: " & GetJsonText(vuln, "tag_order") & vbCrLf
+End If
 ```
 
 ### Personnaliser les couleurs de criticité
 
-Dans `Insert.bas` lignes 58-69 :
+Dans `Insert.bas` → `ApplyLevelColor()` :
 
 ```vba
-Select Case vuln("level")
-    Case "Critical"
-        .Font.Color = RGB(139, 0, 0)     ' Dark Red
-    Case "High"
-        .Font.Color = RGB(255, 69, 0)    ' Orange Red
-    Case "Medium"
-        .Font.Color = RGB(255, 165, 0)   ' Orange
-    Case "Low"
-        .Font.Color = RGB(65, 105, 225)  ' Royal Blue
+Select Case UCase$(level)
+    Case "CRITICAL"
+        rng.Font.Color = RGB(139, 0, 0)     ' Dark Red
+    Case "HIGH"
+        rng.Font.Color = RGB(255, 69, 0)    ' Orange Red
+    Case "MEDIUM"
+        rng.Font.Color = RGB(255, 165, 0)   ' Orange
+    Case "LOW"
+        rng.Font.Color = RGB(65, 105, 225)  ' Royal Blue
     Case Else
-        .Font.Color = RGB(128, 128, 128) ' Gray
+        rng.Font.Color = RGB(128, 128, 128) ' Gray
 End Select
 ```
 
