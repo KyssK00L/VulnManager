@@ -7,6 +7,11 @@ Option Explicit
 Private Const CACHE_NAMESPACE As String = "VulnManager/Cache"
 Private Const CACHE_MAX_AGE_HOURS As Integer = 24
 
+' Ensure CDATA payload stays valid even if JSON contains ']]>'
+Private Function EncodeCData(ByVal payload As String) As String
+    EncodeCData = Replace(payload, "]]>", "]]]]><![CDATA[>")
+End Function
+
 ' Get cache XML part
 Private Function GetCachePart() As Object
     On Error Resume Next
@@ -45,7 +50,7 @@ Public Sub SaveCache(ByVal jsonData As String)
 
     Set part = ActiveDocument.CustomXMLParts.Add( _
         "<cache xmlns=""" & CACHE_NAMESPACE & """ lastSync=""" & lastSync & """>" & _
-        "<data><![CDATA[" & jsonData & "]]></data>" & _
+        "<data><![CDATA[" & EncodeCData(jsonData) & "]]></data>" & _
         "</cache>")
 
     Exit Sub
